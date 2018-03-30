@@ -1,12 +1,32 @@
-# my-component
+# Storage Writer
 
 [![Build Status](https://travis-ci.org/keboola/my-component.svg?branch=master)](https://travis-ci.org/keboola/my-component)
 
-> Fill in description
+Writes tables from input mapping to the configured bucket in the destination project.
 
 # Usage
 
-> fill in usage instructions
+Configuration:
+
+```
+{
+	"storage": {
+		"input": {
+			"tables": [
+				{
+					"source": "in.c-main-some-table",
+					"destination": "target-name"
+				}
+			]
+		}
+	}
+	"parameters": {
+		"bucket": "in.c-target-bucket",
+		"#token": "some-token",
+		"url": "https://connection.keboola.com/"
+	}
+}
+```
 
 ## Development
  
