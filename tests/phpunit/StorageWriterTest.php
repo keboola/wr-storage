@@ -47,7 +47,7 @@ class StorageWriterTest extends TestCase
         $baseDir = $temp->getTmpFolder();
         $fs = new Filesystem();
         $fs->mkdir($baseDir . '/in/tables/');
-        $tableName = $baseDir . '/in/tables/some-table';
+        $tableName = $baseDir . '/in/tables/some-table-1';
         $fs->dumpFile($tableName, "\"id\",\"name\"\n\"1\",\"Bar\"\n\"2\",\"Kochba\"\n\"3\",\"Foo\"\n");
         $manifest = [
             'primary_key' => ['id'],
@@ -64,7 +64,7 @@ class StorageWriterTest extends TestCase
                     'tables' => [
                         [
                             'source' => "in.c-main.some-source",
-                            'destination' => 'some-table',
+                            'destination' => 'some-table-1',
                         ],
                     ],
                 ],
@@ -74,7 +74,7 @@ class StorageWriterTest extends TestCase
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component();
         $app->run();
-        self::assertTrue($this->client->tableExists('in.c-wr-storage-test.some-table'));
+        self::assertTrue($this->client->tableExists('in.c-wr-storage-test.some-table-1'));
     }
 
     public function testAlreadyExists() : void
@@ -84,11 +84,11 @@ class StorageWriterTest extends TestCase
         $fs = new Filesystem();
         $fs->dumpFile($temp->getTmpFolder() . '/tmp.csv', "\"id\",\"name\"\n\"1\",\"a\"\n\"2\",\"b\"\n\"3\",\"c\"\n");
         $csv = new CsvFile($temp->getTmpFolder() . '/tmp.csv');
-        $this->client->createTable('in.c-wr-storage-test', 'some-table', $csv);
+        $this->client->createTable('in.c-wr-storage-test', 'some-table-2', $csv);
 
         $baseDir = $temp->getTmpFolder();
         $fs->mkdir($baseDir . '/in/tables/');
-        $tableName = $baseDir . '/in/tables/some-table';
+        $tableName = $baseDir . '/in/tables/some-table-2';
         $fs->dumpFile($tableName, "\"id\",\"name\"\n\"1\",\"Bar\"\n\"2\",\"Kochba\"\n\"3\",\"Foo\"\n");
         $manifest = [
             'primary_key' => ['id'],
@@ -105,7 +105,7 @@ class StorageWriterTest extends TestCase
                     'tables' => [
                         [
                             'source' => "in.c-main.some-source",
-                            'destination' => 'some-table',
+                            'destination' => 'some-table-2',
                         ],
                     ],
                 ],
@@ -115,6 +115,6 @@ class StorageWriterTest extends TestCase
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component();
         $app->run();
-        self::assertTrue($this->client->tableExists('in.c-wr-storage-test.some-table'));
+        self::assertTrue($this->client->tableExists('in.c-wr-storage-test.some-table-2'));
     }
 }
