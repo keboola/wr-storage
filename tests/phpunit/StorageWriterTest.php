@@ -8,7 +8,6 @@ use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageWriter\Component;
 use Keboola\Temp\Temp;
-use PHP_CodeSniffer\Reports\Csv;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Filesystem;
 
