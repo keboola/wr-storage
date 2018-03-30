@@ -26,7 +26,7 @@ class StorageWriterTest extends TestCase
         }
         $this->client = new Client([
             'token' => getenv('KBC_TEST_TOKEN'),
-            'url' => getenv('KBC_TEST_URL')
+            'url' => getenv('KBC_TEST_URL'),
         ]);
         $tables = $this->client->listTables('in.c-wr-storage-test');
         foreach ($tables as $table) {
