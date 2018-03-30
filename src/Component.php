@@ -8,6 +8,7 @@ use Keboola\Component\BaseComponent;
 use Keboola\Component\UserException;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
+use Keboola\StorageApi\ClientException;
 
 class Component extends BaseComponent
 {
@@ -28,14 +29,24 @@ class Component extends BaseComponent
             echo "Processing table " . $table['destination'];
             $manifest = $this->getManifestManager()->getTableManifest($table['destination']);
             $csv = new CsvFile($this->getDataDir() . '/in/tables/' . $table['destination']);
-            $client->createTableAsync(
-                $bucket,
-                $table['destination'],
-                $csv,
-                [
-                    'primaryKey' => implode(',', $manifest['primary_key']),
-                ]
-            );
+            try {
+                $tableId = $bucket . '.' . $table['destination'];
+                if ($client->tableExists($tableId)) {
+                    $client->deleteTableRows($tableId);
+                    $client->writeTableAsync($tableId, $csv);
+                } else {
+                    $client->createTableAsync(
+                        $bucket,
+                        $table['destination'],
+                        $csv,
+                        [
+                            'primaryKey' => implode(',', $manifest['primary_key']),
+                        ]
+                    );
+                }
+            } catch (ClientException $e) {
+                throw new UserException($e->getMessage());
+            }
         }
         echo "All done.";
     }
