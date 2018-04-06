@@ -1,6 +1,6 @@
 # Storage Writer
 
-[![Build Status](https://travis-ci.org/keboola/my-component.svg?branch=master)](https://travis-ci.org/keboola/my-component)
+[![Build Status](https://travis-ci.org/keboola/wr-storage.svg?branch=master)](https://travis-ci.org/keboola/wr-storage)
 
 Writes tables from input mapping to the configured bucket in the destination project. You need to provide a Storage
 token from the destination project which has `write` access to the target bucket **only**. 
