@@ -1,11 +1,12 @@
 {
-    "name": "fill-me-in/fill-me-in",
+    "name": "keboola/wr-storage",
     "license": "MIT",
-    "description": "fill-me-in",
+    "description": "Storage API Writer",
     "type": "project",
     "require": {
-        "PHP": "^7.1",
-        "keboola/php-component": "^2.0"
+        "PHP": "^7.2",
+        "keboola/php-component": "^2.0",
+        "keboola/storage-api-client": "^10.1"
     },
     "require-dev": {
         "jakub-onderka/php-parallel-lint": "^1.0",
@@ -18,20 +19,18 @@
     },
     "autoload": {
         "psr-4": {
-            "MyComponent\\": "src/"
+            "Keboola\\StorageWriter\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "MyComponent\\Tests\\": "tests/phpunit/"
+            "Keboola\\StorageWriter\\Tests\\": "tests/phpunit/"
         }
     },
     "scripts": {
         "tests-phpunit": "phpunit",
-        "tests-functional": "php ./tests/functional/run.php",
         "tests": [
-            "@tests-phpunit",
-            "@tests-functional"
+            "@tests-phpunit"
         ],
 
         "phpstan": "phpstan analyse ./src ./tests --level=max --no-progress -c phpstan.neon",

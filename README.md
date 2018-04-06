@@ -1,12 +1,33 @@
-# my-component
+# Storage Writer
 
 [![Build Status](https://travis-ci.org/keboola/my-component.svg?branch=master)](https://travis-ci.org/keboola/my-component)
 
-> Fill in description
+Writes tables from input mapping to the configured bucket in the destination project. You need to provide a Storage
+token from the destination project which has `write` access to the target bucket **only**. 
 
 # Usage
 
-> fill in usage instructions
+Configuration:
+
+```
+{
+	"storage": {
+		"input": {
+			"tables": [
+				{
+					"source": "in.c-main-some-table",
+					"destination": "target-name"
+				}
+			]
+		}
+	}
+	"parameters": {
+		"bucket": "in.c-target-bucket",
+		"#token": "some-token",
+		"url": "https://connection.keboola.com/"
+	}
+}
+```
 
 ## Development
  
@@ -24,7 +45,13 @@ Run the test suite using this command:
 ```
 docker-compose run --rm dev composer tests
 ```
- 
+
+The following environment variables have to be set:
+
+- KBC_TEST_URL - URL of the destination Storage (e.g. https://connection.keboola.com/)
+- KBC_TEST_BUCKET - Target bucket in the destination project 
+- KBC_TEST_TOKEN - Token to the destination project (with write access to the target bucket)
+
 # Integration
 
 For information about deployment and integration with KBC, please refer to the [deployment section of developers documentation](https://developers.keboola.com/extend/component/deployment/) 

@@ -8,7 +8,7 @@ services:
 before_script:
   - docker -v
   - docker build -t $APP_IMAGE .
-  - docker run $APP_IMAGE composer ci
+  - docker run -e KBC_TEST_TOKEN -e KBC_TEST_URL -e KBC_TEST_BUCKET $APP_IMAGE composer ci
 
   # push test image to ECR
   - docker pull quay.io/keboola/developer-portal-cli-v2:latest
@@ -21,8 +21,7 @@ before_script:
 
 script:
   # run test job inside KBC
-  - skip 
-  #- docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job $KBC_DEVELOPERPORTAL_APP $KBC_APP_TEST_CONFIG_ID test
+  - docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job $KBC_DEVELOPERPORTAL_APP $KBC_APP_TEST_CONFIG_ID test
 
 deploy:
   provider: script
