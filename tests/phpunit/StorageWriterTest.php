@@ -21,22 +21,19 @@ class StorageWriterTest extends TestCase
     public function setUp() : void
     {
         parent::setUp();
-        if (empty(getenv('KBC_TEST_TOKEN')) || empty(getenv('KBC_TEST_URL'))) {
-            throw new \Exception("KBC_TEST_TOKEN or KBC_TEST_URL is empty");
+        if (empty(getenv('KBC_TEST_TOKEN')) || empty(getenv('KBC_TEST_URL'))
+            || empty(getenv('KBC_TEST_BUCKET'))
+        ) {
+            throw new \Exception("KBC_TEST_TOKEN, KBC_TEST_URL or KBC_TEST_BUCKET is empty");
         }
         $this->client = new Client([
             'token' => getenv('KBC_TEST_TOKEN'),
             'url' => getenv('KBC_TEST_URL'),
         ]);
-        $tables = $this->client->listTables('in.c-wr-storage-test');
+        $tables = $this->client->listTables(getenv('KBC_TEST_BUCKET'));
         foreach ($tables as $table) {
             $this->client->dropTable($table['id']);
         }
-    }
-
-    public function tearDown() : void
-    {
-        parent::tearDown();
     }
 
     public function testBasic() : void
@@ -56,7 +53,7 @@ class StorageWriterTest extends TestCase
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
-                'bucket' => 'in.c-wr-storage-test',
+                'bucket' => getenv('KBC_TEST_BUCKET'),
             ],
             'storage' => [
                 'input' => [
@@ -73,7 +70,7 @@ class StorageWriterTest extends TestCase
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component();
         $app->run();
-        self::assertTrue($this->client->tableExists('in.c-wr-storage-test.some-table-1'));
+        self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-1'));
     }
 
     public function testAlreadyExists() : void
@@ -83,7 +80,7 @@ class StorageWriterTest extends TestCase
         $fs = new Filesystem();
         $fs->dumpFile($temp->getTmpFolder() . '/tmp.csv', "\"id\",\"name\"\n\"1\",\"a\"\n\"2\",\"b\"\n\"3\",\"c\"\n");
         $csv = new CsvFile($temp->getTmpFolder() . '/tmp.csv');
-        $this->client->createTable('in.c-wr-storage-test', 'some-table-2', $csv);
+        $this->client->createTable(getenv('KBC_TEST_BUCKET'), 'some-table-2', $csv);
 
         $baseDir = $temp->getTmpFolder();
         $fs->mkdir($baseDir . '/in/tables/');
@@ -97,7 +94,7 @@ class StorageWriterTest extends TestCase
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
-                'bucket' => 'in.c-wr-storage-test',
+                'bucket' => getenv('KBC_TEST_BUCKET'),
             ],
             'storage' => [
                 'input' => [
@@ -114,6 +111,6 @@ class StorageWriterTest extends TestCase
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component();
         $app->run();
-        self::assertTrue($this->client->tableExists('in.c-wr-storage-test.some-table-2'));
+        self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-2'));
     }
 }

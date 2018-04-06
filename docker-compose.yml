@@ -6,3 +6,7 @@ services:
     volumes:
       - ./:/code
       - ./data:/data
+    environment:
+      - KBC_TEST_TOKEN
+      - KBC_TEST_URL
+      - KBC_TEST_BUCKET

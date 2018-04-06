@@ -18,7 +18,7 @@ class Component extends BaseComponent
         $config = $this->getConfig();
         $client = new Client(['token' => $config->getToken(), 'url' => $config->getUrl()]);
         $tokenInfo = $client->verifyToken();
-        if (!$tokenInfo['bucketPermissions']) {
+        if (count($tokenInfo['bucketPermissions']) > 1) {
             throw new UserException("The token has too broad permissions.");
         }
         $bucket = $config->getBucket();
@@ -32,7 +32,6 @@ class Component extends BaseComponent
             try {
                 $tableId = $bucket . '.' . $table['destination'];
                 if ($client->tableExists($tableId)) {
-                    $client->deleteTableRows($tableId);
                     $client->writeTableAsync($tableId, $csv);
                 } else {
                     $client->createTableAsync(
