@@ -129,7 +129,7 @@ class StorageWriterTest extends TestCase
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
-                'bucket' => getenv('KBC_TEST_BUCKET')
+                'bucket' => getenv('KBC_TEST_BUCKET'),
             ],
             'storage' => [
                 'input' => [
