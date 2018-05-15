@@ -53,7 +53,6 @@ class StorageWriterTest extends TestCase
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
-                'bucket' => getenv('KBC_TEST_BUCKET'),
             ],
             'storage' => [
                 'input' => [
@@ -94,7 +93,6 @@ class StorageWriterTest extends TestCase
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
-                'bucket' => getenv('KBC_TEST_BUCKET'),
             ],
             'storage' => [
                 'input' => [
@@ -113,4 +111,24 @@ class StorageWriterTest extends TestCase
         $app->run();
         self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-2'));
     }
+
+    public function testWithBucket() : void
+    {
+        $temp = new Temp('wr-storage');
+        $temp->initRunFolder();
+        $baseDir = $temp->getTmpFolder();
+        $fs = new Filesystem();
+        $fs->mkdir($baseDir . '/in/tables/');
+        $tableName = $baseDir . '/in/tables/some-table-1';
+        $fs->dumpFile($tableName, "\"id\",\"name\"\n\"1\",\"Bar\"\n\"2\",\"Kochba\"\n\"3\",\"Foo\"\n");
+        $manifest = [
+            'primary_key' => ['id'],
+        ];
+        $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
+        $configFile = [
+            'parameters' => [
+                '#token' => getenv('KBC_TEST_TOKEN'),
+                'url' => getenv('KBC_TEST_URL'),
+                'bucket' => getenv('KBC_TEST_BUCKET')
+            ],
 }

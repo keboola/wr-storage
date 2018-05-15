@@ -21,8 +21,8 @@ class Component extends BaseComponent
         if (count($tokenInfo['bucketPermissions']) > 1) {
             throw new UserException("The token has too broad permissions.");
         }
-        $bucket = $config->getBucket();
-        if (empty($tokenInfo['bucketPermissions'][$bucket]) || ($tokenInfo['bucketPermissions'][$bucket] != 'write')) {
+        $bucket = array_keys($tokenInfo['bucketPermissions'])[0];
+        if ($tokenInfo['bucketPermissions'][$bucket] !== 'write') {
             throw new UserException("The token does not have write permissions to the bucket " . $bucket);
         }
         foreach ($config->getInputTables() as $table) {
