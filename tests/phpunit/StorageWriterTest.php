@@ -131,4 +131,21 @@ class StorageWriterTest extends TestCase
                 'url' => getenv('KBC_TEST_URL'),
                 'bucket' => getenv('KBC_TEST_BUCKET')
             ],
+            'storage' => [
+                'input' => [
+                    'tables' => [
+                        [
+                            'source' => 'in.c-main.some-source',
+                            'destination' => 'some-table-1',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        putenv('KBC_DATADIR=' . $baseDir);
+        $app = new Component();
+        $app->run();
+        self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-1'));
+    }
 }
