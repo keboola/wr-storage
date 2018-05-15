@@ -24,7 +24,7 @@ class StorageWriterTest extends TestCase
         if (empty(getenv('KBC_TEST_TOKEN')) || empty(getenv('KBC_TEST_URL'))
             || empty(getenv('KBC_TEST_BUCKET'))
         ) {
-            throw new \Exception("KBC_TEST_TOKEN, KBC_TEST_URL or KBC_TEST_BUCKET is empty");
+            throw new \Exception('KBC_TEST_TOKEN, KBC_TEST_URL or KBC_TEST_BUCKET is empty');
         }
         $this->client = new Client([
             'token' => getenv('KBC_TEST_TOKEN'),
@@ -59,7 +59,7 @@ class StorageWriterTest extends TestCase
                 'input' => [
                     'tables' => [
                         [
-                            'source' => "in.c-main.some-source",
+                            'source' => 'in.c-main.some-source',
                             'destination' => 'some-table-1',
                         ],
                     ],
@@ -100,7 +100,7 @@ class StorageWriterTest extends TestCase
                 'input' => [
                     'tables' => [
                         [
-                            'source' => "in.c-main.some-source",
+                            'source' => 'in.c-main.some-source',
                             'destination' => 'some-table-2',
                         ],
                     ],
