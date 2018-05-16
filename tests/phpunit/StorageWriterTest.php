@@ -368,4 +368,57 @@ class StorageWriterTest extends TestCase
         );
         $app->run();
     }
+
+    public function testAction(): void
+    {
+        $temp = new Temp('wr-storage');
+        $temp->initRunFolder();
+        $baseDir = $temp->getTmpFolder();
+        $fs = new Filesystem();
+        $configFile = [
+            'parameters' => [
+                '#token' => getenv('KBC_TEST_TOKEN'),
+                'url' => getenv('KBC_TEST_URL'),
+            ],
+            'action' => 'info'
+        ];
+        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        putenv('KBC_DATADIR=' . $baseDir);
+        $app = new Component(new NullLogger());
+        $result = '';
+        ob_start(function ($content) use (&$result) {
+            $result .= $content;
+        });
+        $app->run();
+        ob_end_clean();
+        $data = json_decode($result, true);
+        $tokenInfo = $this->client->verifyToken();
+        self::assertArrayHasKey('bucket', $data);
+        self::assertArrayHasKey('projectId', $data);
+        self::assertArrayHasKey('projectName', $data);
+        self::assertEquals(array_keys($tokenInfo['bucketPermissions'])[0], $data['bucket']);
+        self::assertEquals($tokenInfo['owner']['id'], $data['projectId']);
+        self::assertEquals($tokenInfo['owner']['name'], $data['projectName']);
+    }
+
+    public function testActionInvalidToken(): void
+    {
+        $temp = new Temp('wr-storage');
+        $temp->initRunFolder();
+        $baseDir = $temp->getTmpFolder();
+        $fs = new Filesystem();
+        $configFile = [
+            'parameters' => [
+                '#token' => 'abcd',
+                'url' => getenv('KBC_TEST_URL'),
+            ],
+            'action' => 'info'
+        ];
+        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        putenv('KBC_DATADIR=' . $baseDir);
+        $app = new Component(new NullLogger());
+        self::expectException(UserException::class);
+        self::expectExceptionMessage("Invalid access token");
+        $app->run();
+    }
 }
