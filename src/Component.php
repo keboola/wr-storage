@@ -14,22 +14,22 @@ class Component extends BaseComponent
 {
     public function run(): void
     {
-        /** @var Config $config */
-        $config = $this->getConfig();
-        $client = new Client(['token' => $config->getToken(), 'url' => $config->getUrl()]);
-        $tokenInfo = $client->verifyToken();
-        if (count($tokenInfo['bucketPermissions']) > 1) {
-            throw new UserException("The token has too broad permissions.");
-        }
-        $bucket = array_keys($tokenInfo['bucketPermissions'])[0];
-        if ($tokenInfo['bucketPermissions'][$bucket] !== 'write') {
-            throw new UserException("The token does not have write permissions to the bucket " . $bucket);
-        }
-        foreach ($config->getInputTables() as $table) {
-            $this->getLogger()->info("Processing table " . $table['destination']);
-            $manifest = $this->getManifestManager()->getTableManifest($table['destination']);
-            $csv = new CsvFile($this->getDataDir() . '/in/tables/' . $table['destination']);
-            try {
+        try {
+            /** @var Config $config */
+            $config = $this->getConfig();
+            $client = new Client(['token' => $config->getToken(), 'url' => $config->getUrl()]);
+                $tokenInfo = $client->verifyToken();
+            if (count($tokenInfo['bucketPermissions']) > 1) {
+                throw new UserException("The token has too broad permissions.");
+            }
+            $bucket = array_keys($tokenInfo['bucketPermissions'])[0];
+            if ($tokenInfo['bucketPermissions'][$bucket] !== 'write') {
+                throw new UserException("The token does not have write permissions to the bucket " . $bucket);
+            }
+            foreach ($config->getInputTables() as $table) {
+                $this->getLogger()->info("Processing table " . $table['destination']);
+                $manifest = $this->getManifestManager()->getTableManifest($table['destination']);
+                $csv = new CsvFile($this->getDataDir() . '/in/tables/' . $table['destination']);
                 $tableId = $bucket . '.' . $table['destination'];
                 if ($client->tableExists($tableId)) {
                     $client->writeTableAsync($tableId, $csv);
@@ -43,10 +43,10 @@ class Component extends BaseComponent
                         ]
                     );
                 }
-            } catch (ClientException $e) {
-                throw new UserException($e->getMessage());
+                $this->getLogger()->info("Table " . $table['destination'] . " processed.");
             }
-            $this->getLogger()->info("Table " . $table['destination'] . " processed.");
+        } catch (ClientException $e) {
+            throw new UserException($e->getMessage());
         }
     }
 
