@@ -26,7 +26,7 @@ class Component extends BaseComponent
             throw new UserException("The token does not have write permissions to the bucket " . $bucket);
         }
         foreach ($config->getInputTables() as $table) {
-            echo "Processing table " . $table['destination'];
+            $this->getLogger()->info("Processing table " . $table['destination']);
             $manifest = $this->getManifestManager()->getTableManifest($table['destination']);
             $csv = new CsvFile($this->getDataDir() . '/in/tables/' . $table['destination']);
             try {
@@ -46,8 +46,8 @@ class Component extends BaseComponent
             } catch (ClientException $e) {
                 throw new UserException($e->getMessage());
             }
+            $this->getLogger()->info("Table " . $table['destination'] . " processed.");
         }
-        echo "All done.";
     }
 
     protected function getConfigClass(): string
