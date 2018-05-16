@@ -52,6 +52,7 @@ class StorageWriterTest extends TestCase
         ];
         $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
         $configFile = [
+            'action' => 'run',
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
@@ -94,6 +95,7 @@ class StorageWriterTest extends TestCase
         ];
         $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
         $configFile = [
+            'action' => 'run',
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
@@ -130,6 +132,7 @@ class StorageWriterTest extends TestCase
         ];
         $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
         $configFile = [
+            'action' => 'run',
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
@@ -163,6 +166,7 @@ class StorageWriterTest extends TestCase
         $tableName = $baseDir . '/in/tables/some-table-1';
         $fs->dumpFile($tableName, "\"id\",\"name\"\n\"1\",\"Bar\"\n\"2\",\"Kochba\"\n\"3\",\"Foo\"\n");
         $configFile = [
+            'action' => 'run',
             'parameters' => [
                 '#token' => 'invalid',
                 'url' => getenv('KBC_TEST_URL'),
@@ -206,6 +210,7 @@ class StorageWriterTest extends TestCase
         ];
         $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
         $configFile = [
+            'action' => 'run',
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
@@ -256,6 +261,7 @@ class StorageWriterTest extends TestCase
         $manifest = [];
         $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
         $configFile = [
+            'action' => 'run',
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
@@ -298,6 +304,7 @@ class StorageWriterTest extends TestCase
         ];
         $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
         $configFile = [
+            'action' => 'run',
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
