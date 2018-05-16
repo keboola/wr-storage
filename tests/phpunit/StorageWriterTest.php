@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\StorageWriter\Tests;
 
+use Keboola\Component\UserException;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
 use Keboola\StorageWriter\Component;
@@ -148,5 +149,42 @@ class StorageWriterTest extends TestCase
         $app = new Component(new NullLogger());
         $app->run();
         self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-1'));
+    }
+
+    public function testInvalidToken()
+    {
+        $temp = new Temp('wr-storage');
+        $temp->initRunFolder();
+        $baseDir = $temp->getTmpFolder();
+        $fs = new Filesystem();
+        $fs->mkdir($baseDir . '/in/tables/');
+        $tableName = $baseDir . '/in/tables/some-table-1';
+        $fs->dumpFile($tableName, "\"id\",\"name\"\n\"1\",\"Bar\"\n\"2\",\"Kochba\"\n\"3\",\"Foo\"\n");
+        $manifest = [
+            'primary_key' => ['id'],
+        ];
+        $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
+        $configFile = [
+            'parameters' => [
+                '#token' => 'invalid',
+                'url' => getenv('KBC_TEST_URL'),
+            ],
+            'storage' => [
+                'input' => [
+                    'tables' => [
+                        [
+                            'source' => 'in.c-main.some-source',
+                            'destination' => 'some-table-1',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        putenv('KBC_DATADIR=' . $baseDir);
+        $app = new Component(new NullLogger());
+        self::expectException(UserException::class);
+        self::expectExceptionMessage('Invalid access token');
+        $app->run();
     }
 }
