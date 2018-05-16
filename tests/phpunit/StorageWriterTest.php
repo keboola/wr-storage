@@ -9,6 +9,7 @@ use Keboola\StorageApi\Client;
 use Keboola\StorageWriter\Component;
 use Keboola\Temp\Temp;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Filesystem;
 
 class StorageWriterTest extends TestCase
@@ -24,7 +25,7 @@ class StorageWriterTest extends TestCase
         if (empty(getenv('KBC_TEST_TOKEN')) || empty(getenv('KBC_TEST_URL'))
             || empty(getenv('KBC_TEST_BUCKET'))
         ) {
-            throw new \Exception("KBC_TEST_TOKEN, KBC_TEST_URL or KBC_TEST_BUCKET is empty");
+            throw new \Exception('KBC_TEST_TOKEN, KBC_TEST_URL or KBC_TEST_BUCKET is empty');
         }
         $this->client = new Client([
             'token' => getenv('KBC_TEST_TOKEN'),
@@ -53,13 +54,12 @@ class StorageWriterTest extends TestCase
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
-                'bucket' => getenv('KBC_TEST_BUCKET'),
             ],
             'storage' => [
                 'input' => [
                     'tables' => [
                         [
-                            'source' => "in.c-main.some-source",
+                            'source' => 'in.c-main.some-source',
                             'destination' => 'some-table-1',
                         ],
                     ],
@@ -68,7 +68,7 @@ class StorageWriterTest extends TestCase
         ];
         $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
-        $app = new Component();
+        $app = new Component(new NullLogger());
         $app->run();
         self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-1'));
     }
@@ -94,13 +94,12 @@ class StorageWriterTest extends TestCase
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
-                'bucket' => getenv('KBC_TEST_BUCKET'),
             ],
             'storage' => [
                 'input' => [
                     'tables' => [
                         [
-                            'source' => "in.c-main.some-source",
+                            'source' => 'in.c-main.some-source',
                             'destination' => 'some-table-2',
                         ],
                     ],
@@ -109,8 +108,45 @@ class StorageWriterTest extends TestCase
         ];
         $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
-        $app = new Component();
+        $app = new Component(new NullLogger());
         $app->run();
         self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-2'));
+    }
+
+    public function testWithBucket() : void
+    {
+        $temp = new Temp('wr-storage');
+        $temp->initRunFolder();
+        $baseDir = $temp->getTmpFolder();
+        $fs = new Filesystem();
+        $fs->mkdir($baseDir . '/in/tables/');
+        $tableName = $baseDir . '/in/tables/some-table-1';
+        $fs->dumpFile($tableName, "\"id\",\"name\"\n\"1\",\"Bar\"\n\"2\",\"Kochba\"\n\"3\",\"Foo\"\n");
+        $manifest = [
+            'primary_key' => ['id'],
+        ];
+        $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
+        $configFile = [
+            'parameters' => [
+                '#token' => getenv('KBC_TEST_TOKEN'),
+                'url' => getenv('KBC_TEST_URL'),
+                'bucket' => getenv('KBC_TEST_BUCKET'),
+            ],
+            'storage' => [
+                'input' => [
+                    'tables' => [
+                        [
+                            'source' => 'in.c-main.some-source',
+                            'destination' => 'some-table-1',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        putenv('KBC_DATADIR=' . $baseDir);
+        $app = new Component(new NullLogger());
+        $app->run();
+        self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-1'));
     }
 }
