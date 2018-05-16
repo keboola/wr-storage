@@ -151,7 +151,7 @@ class StorageWriterTest extends TestCase
         self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-1'));
     }
 
-    public function testInvalidToken()
+    public function testInvalidToken() : void
     {
         $temp = new Temp('wr-storage');
         $temp->initRunFolder();
