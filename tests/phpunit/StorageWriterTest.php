@@ -380,13 +380,13 @@ class StorageWriterTest extends TestCase
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
             ],
-            'action' => 'info'
+            'action' => 'info',
         ];
         $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
         $result = '';
-        ob_start(function ($content) use (&$result) {
+        ob_start(function ($content) use (&$result) : void {
             $result .= $content;
         });
         $app->run();
@@ -412,7 +412,7 @@ class StorageWriterTest extends TestCase
                 '#token' => 'abcd',
                 'url' => getenv('KBC_TEST_URL'),
             ],
-            'action' => 'info'
+            'action' => 'info',
         ];
         $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
