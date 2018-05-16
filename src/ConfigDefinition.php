@@ -16,6 +16,7 @@ class ConfigDefinition extends BaseConfigDefinition
         /** @noinspection NullPointerExceptionInspection */
         $parametersNode
             ->children()
+                ->scalarNode('bucket')->end()
                 ->scalarNode('#token')->isRequired()->cannotBeEmpty()->end()
                 ->scalarNode('url')->isRequired()->cannotBeEmpty()->end()
             ->end()
