@@ -48,7 +48,7 @@ docker-compose run --rm dev composer ci
 The following environment variables have to be set:
 
 - KBC_TEST_URL - URL of the destination Storage (e.g. https://connection.keboola.com/)
-- KBC_TEST_BUCKET - Target bucket in the destination project (only used in tests)
+- KBC_TEST_BUCKET - Target bucket in the destination project
 - KBC_TEST_TOKEN - Token to the destination project (with write access to the target bucket)
 
 # Integration
