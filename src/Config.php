@@ -17,4 +17,9 @@ class Config extends BaseConfig
     {
         return $this->getValue(['parameters', 'url']);
     }
+
+    public function isIncremental() : bool
+    {
+        return $this->getValue(['parameters', 'incremental']);
+    }
 }

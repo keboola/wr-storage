@@ -29,17 +29,18 @@ class Component extends BaseComponent
             foreach ($config->getInputTables() as $table) {
                 $this->getLogger()->info("Processing table " . $table['destination']);
                 $manifest = $this->getManifestManager()->getTableManifest($table['destination']);
+                $primaryKey = $manifest['primary_key'] ?? [];
                 $csv = new CsvFile($this->getDataDir() . '/in/tables/' . $table['destination']);
                 $tableId = $bucket . '.' . $table['destination'];
                 if ($client->tableExists($tableId)) {
-                    $client->writeTableAsync($tableId, $csv);
+                    $client->writeTableAsync($tableId, $csv, ['incremental' => $config->isIncremental()]);
                 } else {
                     $client->createTableAsync(
                         $bucket,
                         $table['destination'],
                         $csv,
                         [
-                            'primaryKey' => implode(',', $manifest['primary_key']),
+                            'primaryKey' => implode(',', $primaryKey),
                         ]
                     );
                 }

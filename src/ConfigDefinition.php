@@ -19,6 +19,7 @@ class ConfigDefinition extends BaseConfigDefinition
                 ->scalarNode('bucket')->end()
                 ->scalarNode('#token')->isRequired()->cannotBeEmpty()->end()
                 ->scalarNode('url')->isRequired()->cannotBeEmpty()->end()
+                ->booleanNode('incremental')->defaultFalse()->end()
             ->end()
         ;
         // @formatter:on
