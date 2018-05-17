@@ -350,6 +350,7 @@ class StorageWriterTest extends TestCase
         ];
         $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
         $configFile = [
+            'action' => 'run',
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
