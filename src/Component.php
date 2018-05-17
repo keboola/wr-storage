@@ -36,9 +36,9 @@ class Component extends BaseComponent
                     $tableInfo = $client->getTable($tableId);
                     if ($tableInfo['primaryKey'] != $primaryKey) {
                         throw new UserException(
-                            'Incompatible primary key encountered, target table has: ' .
-                            json_encode($tableInfo['primaryKey']) . '. Table being written has: ' .
-                            json_encode($primaryKey)
+                            'Primary in the destination table ' . $table['destination'] . ' ' .
+                            json_encode($tableInfo['primaryKey']) .
+                            ' does not match the primary key in the source table: ' . json_encode($primaryKey)
                         );
                     }
                     $client->writeTableAsync($tableId, $csv, ['incremental' => $config->isIncremental()]);

@@ -319,7 +319,8 @@ class StorageWriterTest extends TestCase
         $app = new Component(new NullLogger());
         self::expectException(UserException::class);
         self::expectExceptionMessage(
-            'Incompatible primary key encountered, target table has: ["name","id"]. Table being written has: []'
+            'Primary in the destination table some-table-7 ["name","id"] ' .
+            'does not match the primary key in the source table: []'
         );
         $app->run();
     }
