@@ -287,14 +287,14 @@ class StorageWriterTest extends TestCase
         $fs = new Filesystem();
         $fs->dumpFile($temp->getTmpFolder() . '/tmp.csv', "\"id\",\"name\"\n\"1\",\"a\"\n\"2\",\"b\"\n\"3\",\"c\"\n");
         $csv = new CsvFile($temp->getTmpFolder() . '/tmp.csv');
-        $this->client->createTable(getenv('KBC_TEST_BUCKET'), 'some-table-7', $csv, ['primaryKey' => 'name']);
+        $this->client->createTable(getenv('KBC_TEST_BUCKET'), 'some-table-7', $csv, ['primaryKey' => 'name,id']);
 
         $baseDir = $temp->getTmpFolder();
         $fs->mkdir($baseDir . '/in/tables/');
         $tableName = $baseDir . '/in/tables/some-table-7';
         $fs->dumpFile($tableName, "\"id\",\"name\"\n\"1\",\"Bar\"\n\"4\",\"b\"\n\"5\",\"c\"\n");
         $manifest = [
-            'primary_key' => ['id'],
+            'primary_key' => [],
         ];
         $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
         $configFile = [
@@ -317,24 +317,11 @@ class StorageWriterTest extends TestCase
         $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
-        $app->run();
-        self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-7'));
-        $table = $this->client->getTable(getenv('KBC_TEST_BUCKET') . '.some-table-7');
-        self::assertEquals(['name'], $table['primaryKey']);
-        $data = $this->client->getTableDataPreview(getenv('KBC_TEST_BUCKET') . '.some-table-7');
-        $data = explode("\n", $data);
-        sort($data);
-        self::assertEquals(
-            [
-                '',
-                '"1","Bar"',
-                '"1","a"',
-                '"4","b"',
-                '"5","c"',
-                '"id","name"',
-            ],
-            $data
+        self::expectException(UserException::class);
+        self::expectExceptionMessage(
+            'Incompatible primary key encountered, target table has: ["name","id"]. Table being written has: []'
         );
+        $app->run();
     }
 
     public function testAlreadyExistsWrongColumns(): void
