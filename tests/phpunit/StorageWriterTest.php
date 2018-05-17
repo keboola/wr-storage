@@ -83,7 +83,7 @@ class StorageWriterTest extends TestCase
         $fs = new Filesystem();
         $fs->dumpFile($temp->getTmpFolder() . '/tmp.csv', "\"id\",\"name\"\n\"1\",\"a\"\n\"2\",\"b\"\n\"3\",\"c\"\n");
         $csv = new CsvFile($temp->getTmpFolder() . '/tmp.csv');
-        $this->client->createTable(getenv('KBC_TEST_BUCKET'), 'some-table-2', $csv);
+        $this->client->createTable(getenv('KBC_TEST_BUCKET'), 'some-table-2', $csv, ['primaryKey' => 'id']);
 
         $baseDir = $temp->getTmpFolder();
         $fs->mkdir($baseDir . '/in/tables/');
@@ -202,7 +202,7 @@ class StorageWriterTest extends TestCase
         $tableName = $baseDir . '/in/tables/some-table-5';
         $fs->dumpFile($tableName, "\"id\",\"name\"\n\"1\",\"Bar\"\n\"2\",\"Kochba\"\n\"3\",\"Foo\"\n");
         $manifest = [
-            'primary_key' => ['id'],
+            'primary_key' => [],
         ];
         $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
         $configFile = [
