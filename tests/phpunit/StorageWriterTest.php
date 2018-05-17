@@ -336,4 +336,48 @@ class StorageWriterTest extends TestCase
             $data
         );
     }
+
+    public function testAlreadyExistsWrongColumns(): void
+    {
+        $temp = new Temp('wr-storage');
+        $temp->initRunFolder();
+        $fs = new Filesystem();
+        $fs->dumpFile($temp->getTmpFolder() . '/tmp.csv', "\"id\",\"boo\"\n\"1\",\"a\"\n\"2\",\"b\"\n");
+        $csv = new CsvFile($temp->getTmpFolder() . '/tmp.csv');
+        $this->client->createTable(getenv('KBC_TEST_BUCKET'), 'some-table-8', $csv, ['primaryKey' => 'id']);
+
+        $baseDir = $temp->getTmpFolder();
+        $fs->mkdir($baseDir . '/in/tables/');
+        $tableName = $baseDir . '/in/tables/some-table-8';
+        $fs->dumpFile($tableName, "\"id\",\"name\"\n\"1\",\"Bar\"\n\"4\",\"b\"\n\"5\",\"c\"\n");
+        $manifest = [
+            'primary_key' => ['id'],
+        ];
+        $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
+        $configFile = [
+            'parameters' => [
+                '#token' => getenv('KBC_TEST_TOKEN'),
+                'url' => getenv('KBC_TEST_URL'),
+                'incremental' => true,
+            ],
+            'storage' => [
+                'input' => [
+                    'tables' => [
+                        [
+                            'source' => 'in.c-main.some-source',
+                            'destination' => 'some-table-8',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        putenv('KBC_DATADIR=' . $baseDir);
+        $app = new Component(new NullLogger());
+        self::expectException(UserException::class);
+        self::expectExceptionMessage(
+            'Some columns are missing in the csv file. Missing columns: boo. Expected columns: id,boo.'
+        );
+        $app->run();
+    }
 }
