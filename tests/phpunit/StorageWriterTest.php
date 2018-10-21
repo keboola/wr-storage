@@ -388,7 +388,7 @@ class StorageWriterTest extends TestCase
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
             ],
-            'action' => 'info',
+            'action' => 'targetInfo',
         ];
         $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);

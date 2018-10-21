@@ -22,7 +22,7 @@ class Component extends BaseComponent
             $bucket = $authorization->getAuthorizedBucket();
             if ($config->getAction() === 'run') {
                 $this->write($client, $config, $bucket);
-            } elseif ($config->getAction() === 'sourceInfo') {
+            } elseif ($config->getAction() === 'targetInfo') {
                 echo \GuzzleHttp\json_encode([
                     'project' => $this->getProjectInfo($client),
                     'bucket' => $bucket,
