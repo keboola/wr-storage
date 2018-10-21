@@ -399,14 +399,13 @@ class StorageWriterTest extends TestCase
         });
         $app->run();
         ob_end_clean();
-        $data = json_decode($result, true);
+        $data = \GuzzleHttp\json_decode($result, true);
         $tokenInfo = $this->client->verifyToken();
         self::assertArrayHasKey('bucket', $data);
-        self::assertArrayHasKey('projectId', $data);
-        self::assertArrayHasKey('projectName', $data);
-        self::assertEquals(array_keys($tokenInfo['bucketPermissions'])[0], $data['bucket']);
-        self::assertEquals($tokenInfo['owner']['id'], $data['projectId']);
-        self::assertEquals($tokenInfo['owner']['name'], $data['projectName']);
+        self::assertArrayHasKey('project', $data);
+        self::assertEquals(getenv('KBC_TEST_BUCKET'), $data['bucket']);
+        self::assertEquals($tokenInfo['owner']['id'], $data['project']['id']);
+        self::assertEquals($tokenInfo['owner']['name'], $data['project']['name']);
     }
 
     public function testActionInvalidToken(): void

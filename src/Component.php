@@ -18,21 +18,14 @@ class Component extends BaseComponent
             /** @var Config $config */
             $config = $this->getConfig();
             $client = new Client(['token' => $config->getToken(), 'url' => $config->getUrl()]);
-            $tokenInfo = $client->verifyToken();
-            if (count($tokenInfo['bucketPermissions']) > 1) {
-                throw new UserException('The token has too broad permissions.');
-            }
-            $bucket = array_keys($tokenInfo['bucketPermissions'])[0];
-            if ($tokenInfo['bucketPermissions'][$bucket] !== 'write') {
-                throw new UserException('The token does not have write permissions to the bucket ' . $bucket);
-            }
+            $authorization = new Authorization($client);
+            $bucket = $authorization->getAuthorizedBucket();
             if ($config->getAction() === 'run') {
                 $this->write($client, $config, $bucket);
-            } elseif ($config->getAction() === 'info') {
+            } elseif ($config->getAction() === 'sourceInfo') {
                 echo \GuzzleHttp\json_encode([
+                    'project' => $this->getProjectInfo($client),
                     'bucket' => $bucket,
-                    'projectId' => $tokenInfo['owner']['id'],
-                    'projectName' => $tokenInfo['owner']['name'],
                 ]);
             } else {
                 throw new UserException("Unknown action " . $config->getAction());
@@ -55,8 +48,8 @@ class Component extends BaseComponent
                 if ($tableInfo['primaryKey'] != $primaryKey) {
                     throw new UserException(
                         'Primary in the destination table ' . $table['destination'] . ' ' .
-                        json_encode($tableInfo['primaryKey']) .
-                        ' does not match the primary key in the source table: ' . json_encode($primaryKey)
+                        \GuzzleHttp\json_encode($tableInfo['primaryKey']) .
+                        ' does not match the primary key in the source table: ' . \GuzzleHttp\json_encode($primaryKey)
                     );
                 }
                 $client->writeTableAsync($tableId, $csv, ['incremental' => $config->isIncremental()]);
@@ -82,5 +75,14 @@ class Component extends BaseComponent
     protected function getConfigDefinitionClass(): string
     {
         return ConfigDefinition::class;
+    }
+
+    private function getProjectInfo(Client $client): array
+    {
+        $tokenInfo = $client->verifyToken();
+        return [
+            'name' => $tokenInfo['owner']['name'],
+            'id' => $tokenInfo['owner']['id'],
+        ];
     }
 }
