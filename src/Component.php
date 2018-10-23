@@ -56,11 +56,12 @@ class Component extends BaseComponent
             } else {
                 if ($client->tableExists($tableId)) {
                     $tableInfo = $client->getTable($tableId);
-                    if ($tableInfo['primaryKey'] != $primaryKey) {
+                    if ($tableInfo['primaryKey'] !== $primaryKey) {
                         throw new UserException(
                             'Primary in the destination table ' . $table['destination'] . ' ' .
                             \GuzzleHttp\json_encode($tableInfo['primaryKey']) .
-                            ' does not match the primary key in the source table: ' . \GuzzleHttp\json_encode($primaryKey)
+                            ' does not match the primary key in the source table: ' .
+                            \GuzzleHttp\json_encode($primaryKey)
                         );
                     }
                     $client->writeTableAsync($tableId, $csv, ['incremental' => $config->isIncremental()]);

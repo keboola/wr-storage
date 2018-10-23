@@ -27,5 +27,4 @@ class Config extends BaseConfig
     {
         return (bool) $this->getValue(['parameters', 'fullSync']);
     }
-
 }
