@@ -16,9 +16,10 @@ class ConfigDefinition extends BaseConfigDefinition
         /** @noinspection NullPointerExceptionInspection */
         $parametersNode
             ->children()
-                ->scalarNode('bucket')->end()
+                ->scalarNode('bucket')->end() // this is only for compatibility with legacy configs and is ignored
                 ->scalarNode('#token')->isRequired()->cannotBeEmpty()->end()
                 ->scalarNode('url')->isRequired()->cannotBeEmpty()->end()
+                ->booleanNode('fullSync')->defaultFalse()->end()
                 ->booleanNode('incremental')->defaultFalse()->end()
             ->end()
         ;

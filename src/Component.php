@@ -43,17 +43,8 @@ class Component extends BaseComponent
             $primaryKey = $manifest['primary_key'] ?? [];
             $csv = new CsvFile($this->getDataDir() . '/in/tables/' . $table['destination']);
             $tableId = $bucket . '.' . $table['destination'];
-            if ($client->tableExists($tableId)) {
-                $tableInfo = $client->getTable($tableId);
-                if ($tableInfo['primaryKey'] != $primaryKey) {
-                    throw new UserException(
-                        'Primary in the destination table ' . $table['destination'] . ' ' .
-                        \GuzzleHttp\json_encode($tableInfo['primaryKey']) .
-                        ' does not match the primary key in the source table: ' . \GuzzleHttp\json_encode($primaryKey)
-                    );
-                }
-                $client->writeTableAsync($tableId, $csv, ['incremental' => $config->isIncremental()]);
-            } else {
+            if ($config->isFullSync()) {
+                $client->dropTable($tableId);
                 $client->createTableAsync(
                     $bucket,
                     $table['destination'],
@@ -62,8 +53,29 @@ class Component extends BaseComponent
                         'primaryKey' => implode(',', $primaryKey),
                     ]
                 );
+            } else {
+                if ($client->tableExists($tableId)) {
+                    $tableInfo = $client->getTable($tableId);
+                    if ($tableInfo['primaryKey'] != $primaryKey) {
+                        throw new UserException(
+                            'Primary in the destination table ' . $table['destination'] . ' ' .
+                            \GuzzleHttp\json_encode($tableInfo['primaryKey']) .
+                            ' does not match the primary key in the source table: ' . \GuzzleHttp\json_encode($primaryKey)
+                        );
+                    }
+                    $client->writeTableAsync($tableId, $csv, ['incremental' => $config->isIncremental()]);
+                } else {
+                    $client->createTableAsync(
+                        $bucket,
+                        $table['destination'],
+                        $csv,
+                        [
+                            'primaryKey' => implode(',', $primaryKey),
+                        ]
+                    );
+                }
             }
-                $this->getLogger()->info('Table ' . $table['destination'] . ' processed.');
+            $this->getLogger()->info('Table ' . $table['destination'] . ' processed.');
         }
     }
 

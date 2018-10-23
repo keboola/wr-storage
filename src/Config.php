@@ -8,18 +8,24 @@ use Keboola\Component\Config\BaseConfig;
 
 class Config extends BaseConfig
 {
-    public function getToken() : string
+    public function getToken(): string
     {
-        return $this->getValue(['parameters', '#token']);
+        return (string) $this->getValue(['parameters', '#token']);
     }
 
-    public function getUrl() : string
+    public function getUrl(): string
     {
-        return $this->getValue(['parameters', 'url']);
+        return (string) $this->getValue(['parameters', 'url']);
     }
 
-    public function isIncremental() : bool
+    public function isIncremental(): bool
     {
-        return $this->getValue(['parameters', 'incremental']);
+        return (bool) $this->getValue(['parameters', 'incremental']);
     }
+
+    public function isFullSync(): bool
+    {
+        return (bool) $this->getValue(['parameters', 'fullSync']);
+    }
+
 }
