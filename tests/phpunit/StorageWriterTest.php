@@ -424,6 +424,49 @@ class StorageWriterTest extends TestCase
         self::assertEquals(['id', 'name'], $tableInfo['columns']);
     }
 
+    public function testNotExistsFullSync(): void
+    {
+        $temp = new Temp('wr-storage');
+        $temp->initRunFolder();
+        $fs = new Filesystem();
+        self::assertFalse($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-10'));
+
+        $baseDir = $temp->getTmpFolder();
+        $fs->mkdir($baseDir . '/in/tables/');
+        $tableName = $baseDir . '/in/tables/some-table-10';
+        $fs->dumpFile($tableName, "\"id\",\"name\"\n\"1\",\"Bar\"\n\"4\",\"b\"\n\"5\",\"c\"\n");
+        $manifest = [
+            'primary_key' => ['name'],
+        ];
+        $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
+        $configFile = [
+            'action' => 'run',
+            'parameters' => [
+                '#token' => getenv('KBC_TEST_TOKEN'),
+                'url' => getenv('KBC_TEST_URL'),
+                'incremental' => true,
+                'fullSync' => true,
+            ],
+            'storage' => [
+                'input' => [
+                    'tables' => [
+                        [
+                            'source' => 'in.c-main.some-source',
+                            'destination' => 'some-table-10',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        putenv('KBC_DATADIR=' . $baseDir);
+        $app = new Component(new NullLogger());
+        $app->run();
+        self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-10'));
+        $tableInfo = $this->client->getTable(getenv('KBC_TEST_BUCKET') . '.some-table-10');
+        self::assertEquals(['id', 'name'], $tableInfo['columns']);
+    }
+
     public function testAction(): void
     {
         $temp = new Temp('wr-storage');

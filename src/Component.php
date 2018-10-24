@@ -44,7 +44,13 @@ class Component extends BaseComponent
             $csv = new CsvFile($this->getDataDir() . '/in/tables/' . $table['destination']);
             $tableId = $bucket . '.' . $table['destination'];
             if ($config->isFullSync()) {
-                $client->dropTable($tableId);
+                try {
+                    $client->dropTable($tableId);
+                } catch (ClientException $e) {
+                    if ($e->getCode() !== 404) {
+                        throw $e;
+                    }
+                }
                 $client->createTableAsync(
                     $bucket,
                     $table['destination'],
