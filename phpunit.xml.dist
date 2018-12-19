@@ -11,4 +11,13 @@
     <testsuite name="Main Test Suite">
         <directory>tests/phpunit</directory>
     </testsuite>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">.</directory>
+            <exclude>
+                <directory suffix=".php">vendor</directory>
+                <file>src/run.php</file>
+            </exclude>
+        </whitelist>
+    </filter>
 </phpunit>

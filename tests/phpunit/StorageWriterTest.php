@@ -11,6 +11,7 @@ use Keboola\StorageWriter\Component;
 use Keboola\Temp\Temp;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Psr\Log\Test\TestLogger;
 use Symfony\Component\Filesystem\Filesystem;
 
 class StorageWriterTest extends TestCase
@@ -70,11 +71,13 @@ class StorageWriterTest extends TestCase
         ];
         $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
-        $app = new Component(new NullLogger());
+        $logger = new TestLogger();
+        $app = new Component($logger);
         $app->run();
         self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-1'));
         $table = $this->client->getTable(getenv('KBC_TEST_BUCKET') . '.some-table-1');
         self::assertEquals(['id'], $table['primaryKey']);
+        self::assertTrue($logger->hasInfoThatContains('Authorized for project'));
     }
 
     public function testAlreadyExists(): void
@@ -437,7 +440,7 @@ class StorageWriterTest extends TestCase
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
-                'incremental' => true,
+                'incremental' => false,
             ],
             'storage' => [
                 'input' => [
