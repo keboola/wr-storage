@@ -412,7 +412,7 @@ class StorageWriterTest extends TestCase
         $app = new Component(new NullLogger());
         self::expectException(UserException::class);
         self::expectExceptionMessage(
-            'Primary in the destination table "some-table-7" - ["name","id"] ' .
+            'Primary key in the destination table "some-table-7" - ["name","id"] ' .
             'does not match the primary key in the source table - [].'
         );
         $app->run();
