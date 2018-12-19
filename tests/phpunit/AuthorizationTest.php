@@ -25,7 +25,10 @@ class AuthorizationTest extends TestCase
 
     public function testValidToken(): void
     {
-        $client = $this->getClientMock(['bucketPermissions' => ['in.some-bucket' => 'write']]);
+        $client = $this->getClientMock([
+            'bucketPermissions' => ['in.some-bucket' => 'write'],
+            'owner' => ['id' => 1, 'name' => 'test'],
+        ]);
         $authorization = new Authorization($client);
         self::assertSame('in.some-bucket', $authorization->getAuthorizedBucket());
     }

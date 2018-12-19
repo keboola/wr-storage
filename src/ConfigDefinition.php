@@ -6,6 +6,7 @@ namespace Keboola\StorageWriter;
 
 use Keboola\Component\Config\BaseConfigDefinition;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 class ConfigDefinition extends BaseConfigDefinition
 {
@@ -19,8 +20,17 @@ class ConfigDefinition extends BaseConfigDefinition
                 ->scalarNode('bucket')->end() // this is only for compatibility with legacy configs and is ignored
                 ->scalarNode('#token')->isRequired()->cannotBeEmpty()->end()
                 ->scalarNode('url')->isRequired()->cannotBeEmpty()->end()
-                ->booleanNode('fullSync')->defaultFalse()->end()
-                ->booleanNode('incremental')->defaultFalse()->end()
+                ->booleanNode('incremental')->end()
+                ->scalarNode('mode')
+                    ->defaultValue(Config::MODE_REPLACE)
+                    ->validate()
+                        ->ifNotInArray([Config::MODE_RECREATE, Config::MODE_REPLACE, Config::MODE_UPDATE])
+                        ->thenInvalid(sprintf(
+                            'Mode must be one of "%s"',
+                            implode(', ', [Config::MODE_RECREATE, Config::MODE_REPLACE, Config::MODE_UPDATE])
+                        ))
+                    ->end()
+                ->end()
             ->end()
         ;
         // @formatter:on

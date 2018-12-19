@@ -14,6 +14,16 @@ class Authorization
      */
     private $authorizedBucket;
 
+    /**
+     * @var string
+     */
+    private $authorizedProjectName;
+
+    /**
+     * @var int
+     */
+    private $authorizedProjectId;
+
     public function __construct(Client $client)
     {
         $tokenInfo = $client->verifyToken();
@@ -21,6 +31,8 @@ class Authorization
         $bucket = (string) array_keys($tokenInfo['bucketPermissions'])[0];
         $this->validateBucketPermissions($tokenInfo, $bucket);
         $this->authorizedBucket = $bucket;
+        $this->authorizedProjectName = $tokenInfo['owner']['name'];
+        $this->authorizedProjectId = $tokenInfo['owner']['id'];
     }
 
     private function validateNumberOfBuckets(array $tokenInfo): void
@@ -42,5 +54,15 @@ class Authorization
     public function getAuthorizedBucket(): string
     {
         return $this->authorizedBucket;
+    }
+
+    public function getAuthorizedProjectId(): int
+    {
+        return $this->authorizedProjectId;
+    }
+
+    public function getAuthorizedProjectName(): string
+    {
+        return $this->authorizedProjectName;
     }
 }
