@@ -23,10 +23,12 @@ class Component extends BaseComponent
             $client = new Client(['token' => $config->getToken(), 'url' => $config->getUrl()]);
             $authorization = new Authorization($client);
             $bucket = $authorization->getAuthorizedBucket();
-            $this->getLogger()->info(sprintf(
-                'Authorized for project "%s" ("%s")',
-                $authorization->getAuthorizedProjectName(),
-                $authorization->getAuthorizedProjectId())
+            $this->getLogger()->info(
+                sprintf(
+                    'Authorized for project "%s" ("%s")',
+                    $authorization->getAuthorizedProjectName(),
+                    $authorization->getAuthorizedProjectId()
+                )
             );
             if ($config->getAction() === self::ACTION_RUN) {
                 $this->write($client, $config, $bucket);
