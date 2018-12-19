@@ -76,7 +76,7 @@ class Component extends BaseComponent
                 $tableInfo = $client->getTable($tableId);
                 if ($tableInfo['primaryKey'] !== $primaryKey) {
                     throw new UserException(sprintf(
-                        'Primary in the destination table "%s" - %s ' .
+                        'Primary key in the destination table "%s" - %s ' .
                         'does not match the primary key in the source table - %s.',
                         $table['destination'],
                         \GuzzleHttp\json_encode($tableInfo['primaryKey']),
