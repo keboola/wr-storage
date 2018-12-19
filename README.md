@@ -23,10 +23,22 @@ Configuration:
 	}
 	"parameters": {
 		"#token": "some-token",
-		"url": "https://connection.keboola.com/"
+		"url": "https://connection.keboola.com/",
+		"mode": "update"
 	}
 }
 ```
+
+## Writing Mode
+The writer supports three writing modes:
+
+- `update` - will use [incremental loading](https://help.keboola.com/storage/tables/#incremental-loading) on the target table. 
+- `replace` - will replace data in the target table. If the structures of the source and destination tables do not match, an error will be reported.
+- `recreate` - will drop and create the target table. This will make sure that the structure of the destination table matches that of the source table.   
+
+Default mode is `replace`. 
+
+Note: Legacy configurations may have the `incremental` parameter. If it is true, it corresponds to the `update` mode. If it is false, it corresponds to the `replace` mode.
 
 ## Development
 
