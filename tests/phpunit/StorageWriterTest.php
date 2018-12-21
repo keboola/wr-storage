@@ -11,6 +11,7 @@ use Keboola\StorageWriter\Component;
 use Keboola\Temp\Temp;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Psr\Log\Test\TestLogger;
 use Symfony\Component\Filesystem\Filesystem;
 
 class StorageWriterTest extends TestCase
@@ -38,7 +39,7 @@ class StorageWriterTest extends TestCase
         }
     }
 
-    public function testBasic(): void
+    public function testCreateTable(): void
     {
         $temp = new Temp('wr-storage');
         $temp->initRunFolder();
@@ -70,11 +71,13 @@ class StorageWriterTest extends TestCase
         ];
         $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
-        $app = new Component(new NullLogger());
+        $logger = new TestLogger();
+        $app = new Component($logger);
         $app->run();
         self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-1'));
         $table = $this->client->getTable(getenv('KBC_TEST_BUCKET') . '.some-table-1');
         self::assertEquals(['id'], $table['primaryKey']);
+        self::assertTrue($logger->hasInfoThatContains('Authorized for project'));
     }
 
     public function testAlreadyExists(): void
@@ -118,7 +121,7 @@ class StorageWriterTest extends TestCase
         self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-2'));
     }
 
-    public function testWithBucket(): void
+    public function testWithBucketLegacy(): void
     {
         $temp = new Temp('wr-storage');
         $temp->initRunFolder();
@@ -190,6 +193,30 @@ class StorageWriterTest extends TestCase
         $app->run();
     }
 
+    public function testInvalidMode(): void
+    {
+        $temp = new Temp('wr-storage');
+        $temp->initRunFolder();
+        $baseDir = $temp->getTmpFolder();
+        $fs = new Filesystem();
+        $configFile = [
+            'action' => 'run',
+            'parameters' => [
+                '#token' => 'invalid',
+                'url' => getenv('KBC_TEST_URL'),
+                'mode' => 'funky',
+            ],
+            'storage' => [],
+        ];
+        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        putenv('KBC_DATADIR=' . $baseDir);
+        self::expectException(UserException::class);
+        self::expectExceptionMessage(
+            'Invalid configuration for path "root.parameters.mode": Mode must be one of "recreate, replace, update"'
+        );
+        new Component(new NullLogger());
+    }
+
     public function testIncremental(): void
     {
         $temp = new Temp('wr-storage');
@@ -215,6 +242,65 @@ class StorageWriterTest extends TestCase
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
                 'incremental' => true,
+            ],
+            'storage' => [
+                'input' => [
+                    'tables' => [
+                        [
+                            'source' => 'in.c-main.some-source',
+                            'destination' => 'some-table-5',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        putenv('KBC_DATADIR=' . $baseDir);
+        $app = new Component(new NullLogger());
+        $app->run();
+        self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-5'));
+        $data = $this->client->getTableDataPreview(getenv('KBC_TEST_BUCKET') . '.some-table-5');
+        $data = explode("\n", $data);
+        sort($data);
+        self::assertEquals(
+            [
+                '',
+                '"1","Bar"',
+                '"1","foo"',
+                '"2","Kochba"',
+                '"3","Foo"',
+                '"4","foobar"',
+                '"id","name"',
+            ],
+            $data
+        );
+    }
+
+    public function testIncrementalModeUpdate(): void
+    {
+        $temp = new Temp('wr-storage');
+        $temp->initRunFolder();
+        $baseDir = $temp->getTmpFolder();
+        $csv = new CsvFile($baseDir . DIRECTORY_SEPARATOR . uniqid('csv'));
+        $csv->writeRow(['id', 'name']);
+        $csv->writeRow(['1', 'foo']);
+        $csv->writeRow(['4', 'foobar']);
+        $this->client->createTableAsync(getenv('KBC_TEST_BUCKET'), 'some-table-5', $csv);
+
+        $fs = new Filesystem();
+        $fs->mkdir($baseDir . '/in/tables/');
+        $tableName = $baseDir . '/in/tables/some-table-5';
+        $fs->dumpFile($tableName, "\"id\",\"name\"\n\"1\",\"Bar\"\n\"2\",\"Kochba\"\n\"3\",\"Foo\"\n");
+        $manifest = [
+            'primary_key' => [],
+        ];
+        $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
+        $configFile = [
+            'action' => 'run',
+            'parameters' => [
+                '#token' => getenv('KBC_TEST_TOKEN'),
+                'url' => getenv('KBC_TEST_URL'),
+                'mode' => 'update',
             ],
             'storage' => [
                 'input' => [
@@ -326,8 +412,8 @@ class StorageWriterTest extends TestCase
         $app = new Component(new NullLogger());
         self::expectException(UserException::class);
         self::expectExceptionMessage(
-            'Primary in the destination table some-table-7 ["name","id"] ' .
-            'does not match the primary key in the source table: []'
+            'Primary key in the destination table "some-table-7" - ["name","id"] ' .
+            'does not match the primary key in the source table - [].'
         );
         $app->run();
     }
@@ -354,7 +440,7 @@ class StorageWriterTest extends TestCase
             'parameters' => [
                 '#token' => getenv('KBC_TEST_TOKEN'),
                 'url' => getenv('KBC_TEST_URL'),
-                'incremental' => true,
+                'incremental' => false,
             ],
             'storage' => [
                 'input' => [
@@ -375,6 +461,94 @@ class StorageWriterTest extends TestCase
             'Some columns are missing in the csv file. Missing columns: boo. Expected columns: id,boo.'
         );
         $app->run();
+    }
+
+    public function testAlreadyExistsWrongColumnsModeRecreate(): void
+    {
+        $temp = new Temp('wr-storage');
+        $temp->initRunFolder();
+        $fs = new Filesystem();
+        $fs->dumpFile($temp->getTmpFolder() . '/tmp.csv', "\"id\",\"boo\"\n\"1\",\"a\"\n\"2\",\"b\"\n");
+        $csv = new CsvFile($temp->getTmpFolder() . '/tmp.csv');
+        $this->client->createTable(getenv('KBC_TEST_BUCKET'), 'some-table-9', $csv, ['primaryKey' => 'id']);
+        $tableInfo = $this->client->getTable(getenv('KBC_TEST_BUCKET') . '.some-table-9');
+        self::assertEquals(['id', 'boo'], $tableInfo['columns']);
+
+        $baseDir = $temp->getTmpFolder();
+        $fs->mkdir($baseDir . '/in/tables/');
+        $tableName = $baseDir . '/in/tables/some-table-9';
+        $fs->dumpFile($tableName, "\"id\",\"name\"\n\"1\",\"Bar\"\n\"4\",\"b\"\n\"5\",\"c\"\n");
+        $manifest = [
+            'primary_key' => ['name'],
+        ];
+        $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
+        $configFile = [
+            'action' => 'run',
+            'parameters' => [
+                '#token' => getenv('KBC_TEST_TOKEN'),
+                'url' => getenv('KBC_TEST_URL'),
+                'mode' => 'recreate',
+            ],
+            'storage' => [
+                'input' => [
+                    'tables' => [
+                        [
+                            'source' => 'in.c-main.some-source',
+                            'destination' => 'some-table-9',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        putenv('KBC_DATADIR=' . $baseDir);
+        $app = new Component(new NullLogger());
+        $app->run();
+        self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-9'));
+        $tableInfo = $this->client->getTable(getenv('KBC_TEST_BUCKET') . '.some-table-9');
+        self::assertEquals(['id', 'name'], $tableInfo['columns']);
+    }
+
+    public function testNotExistsModeRecreate(): void
+    {
+        $temp = new Temp('wr-storage');
+        $temp->initRunFolder();
+        $fs = new Filesystem();
+        self::assertFalse($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-10'));
+
+        $baseDir = $temp->getTmpFolder();
+        $fs->mkdir($baseDir . '/in/tables/');
+        $tableName = $baseDir . '/in/tables/some-table-10';
+        $fs->dumpFile($tableName, "\"id\",\"name\"\n\"1\",\"Bar\"\n\"4\",\"b\"\n\"5\",\"c\"\n");
+        $manifest = [
+            'primary_key' => ['name'],
+        ];
+        $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
+        $configFile = [
+            'action' => 'run',
+            'parameters' => [
+                '#token' => getenv('KBC_TEST_TOKEN'),
+                'url' => getenv('KBC_TEST_URL'),
+                'mode' => 'recreate',
+            ],
+            'storage' => [
+                'input' => [
+                    'tables' => [
+                        [
+                            'source' => 'in.c-main.some-source',
+                            'destination' => 'some-table-10',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        putenv('KBC_DATADIR=' . $baseDir);
+        $app = new Component(new NullLogger());
+        $app->run();
+        self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-10'));
+        $tableInfo = $this->client->getTable(getenv('KBC_TEST_BUCKET') . '.some-table-10');
+        self::assertEquals(['id', 'name'], $tableInfo['columns']);
     }
 
     public function testAction(): void
@@ -399,12 +573,12 @@ class StorageWriterTest extends TestCase
         });
         $app->run();
         ob_end_clean();
-        $data = json_decode($result, true);
+        $data = \GuzzleHttp\json_decode($result, true);
         $tokenInfo = $this->client->verifyToken();
         self::assertArrayHasKey('bucket', $data);
         self::assertArrayHasKey('projectId', $data);
         self::assertArrayHasKey('projectName', $data);
-        self::assertEquals(array_keys($tokenInfo['bucketPermissions'])[0], $data['bucket']);
+        self::assertEquals(getenv('KBC_TEST_BUCKET'), $data['bucket']);
         self::assertEquals($tokenInfo['owner']['id'], $data['projectId']);
         self::assertEquals($tokenInfo['owner']['name'], $data['projectName']);
     }
