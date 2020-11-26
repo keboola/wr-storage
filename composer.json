@@ -13,7 +13,7 @@
         "keboola/coding-standard": "^6.0",
         "keboola/php-temp": "^1.0",
         "phpstan/phpstan-shim": "^0.10",
-        "phpunit/phpunit": "^7.0",
+        "phpunit/phpunit": "^9.4",
         "squizlabs/php_codesniffer": "^3.2",
         "symfony/process": "^4.0"
     },
@@ -32,7 +32,6 @@
         "tests": [
             "@tests-phpunit"
         ],
-
         "phpstan": "phpstan analyse ./src ./tests --level=max --no-progress -c phpstan.neon",
         "phpcs": "phpcs -n --ignore=vendor --extensions=php .",
         "phplint": "parallel-lint -j 10 --exclude vendor .",
@@ -51,5 +50,4 @@
         "sort-packages": true,
         "optimize-autoloader": true
     }
-
 }
