@@ -5,6 +5,17 @@ language: bash
 services:
   - docker
 
+jobs:
+  include:
+    - stage: write to aws stack
+      env:
+        - KBC_TEST_TOKEN=$KBC_TEST_TOKEN_AWS
+        - KBC_TEST_URL=$KBC_TEST_URL_AWS
+    - stage: write to azure stack
+      env:
+        - KBC_TEST_TOKEN=$KBC_TEST_TOKEN_AZURE
+        - KBC_TEST_URL=$KBC_TEST_URL_AZURE
+
 before_script:
   - docker -v
   - docker build -t $APP_IMAGE .
