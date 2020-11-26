@@ -46,7 +46,7 @@ class Component extends BaseComponent
         }
     }
 
-    private function write(Client $client, Config $config, string $bucket) : void
+    private function write(Client $client, Config $config, string $bucket): void
     {
         foreach ($config->getInputTables() as $table) {
             $this->getLogger()->info(sprintf('Processing table "%s".', $table['destination']));

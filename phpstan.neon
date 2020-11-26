@@ -1,4 +1,5 @@
 parameters:
+    checkMissingIterableValueType: false
     ignoreErrors:
-        - '#Cannot call method scalarNode\(\) on Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface|null.#'
-        - '#Method Keboola\\StorageWriter\\Tests\\AuthorizationTest::getClientMock\(\) should return Keboola\\StorageApi\\Client but returns PHPUnit\\Framework\\MockObject\\MockObject.#'
+        - '#Cannot call method scalarNode\(\) on Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface\|null.#'
+        - '#Parameter \#1 \$object of function get_class expects object, Throwable\|null given\.#'
