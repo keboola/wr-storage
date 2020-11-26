@@ -5,8 +5,10 @@
     "type": "project",
     "require": {
         "php": "^7.2",
+        "keboola/csv": "^1.1",
         "keboola/php-component": "^5.0",
-        "keboola/storage-api-client": "^10.21"
+        "keboola/storage-api-client": "^10.21",
+        "symfony/config": "^4.4"
     },
     "require-dev": {
         "keboola/coding-standard": "^9.0",
