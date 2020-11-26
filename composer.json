@@ -10,7 +10,7 @@
     },
     "require-dev": {
         "jakub-onderka/php-parallel-lint": "^1.0",
-        "keboola/coding-standard": "^6.0",
+        "keboola/coding-standard": "^9.0",
         "keboola/php-temp": "^1.0",
         "phpstan/phpstan": "^0.12.57",
         "phpunit/phpunit": "^9.4"

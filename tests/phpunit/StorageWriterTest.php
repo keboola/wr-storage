@@ -568,7 +568,7 @@ class StorageWriterTest extends TestCase
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
         $result = '';
-        ob_start(function ($content) use (&$result) : void {
+        ob_start(function ($content) use (&$result): void {
             $result .= $content;
         });
         $app->run();
@@ -600,7 +600,7 @@ class StorageWriterTest extends TestCase
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
         self::expectException(UserException::class);
-        self::expectExceptionMessage("Invalid access token");
+        self::expectExceptionMessage('Invalid access token');
         $app->run();
     }
 }
