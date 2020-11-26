@@ -6,7 +6,7 @@
     "require": {
         "PHP": "^7.2",
         "keboola/php-component": "^5.0",
-        "keboola/storage-api-client": "^10.1"
+        "keboola/storage-api-client": "^10.21"
     },
     "require-dev": {
         "jakub-onderka/php-parallel-lint": "^1.0",
