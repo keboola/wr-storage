@@ -13,7 +13,6 @@ use Keboola\StorageApi\ClientException;
 class Component extends BaseComponent
 {
     private const ACTION_INFO = 'info';
-    private const ACTION_RUN = 'run';
 
     protected function run(): void
     {
@@ -23,24 +22,32 @@ class Component extends BaseComponent
             $client = new Client(['token' => $config->getToken(), 'url' => $config->getUrl()]);
             $authorization = new Authorization($client);
             $bucket = $authorization->getAuthorizedBucket();
-            if ($config->getAction() === self::ACTION_RUN) {
-                $this->getLogger()->info(
-                    sprintf(
-                        'Authorized for project "%s" (%s)',
-                        $authorization->getAuthorizedProjectName(),
-                        $authorization->getAuthorizedProjectId()
-                    )
-                );
-                $this->write($client, $config, $bucket);
-            } elseif ($config->getAction() === self::ACTION_INFO) {
-                echo json_encode([
-                    'projectId' => $authorization->getAuthorizedProjectId(),
-                    'projectName' => $authorization->getAuthorizedProjectName(),
-                    'bucket' => $bucket,
-                ]);
-            } else {
-                throw new UserException(sprintf('Unknown action "%s".', $config->getAction()));
-            }
+            $this->getLogger()->info(
+                sprintf(
+                    'Authorized for project "%s" (%s)',
+                    $authorization->getAuthorizedProjectName(),
+                    $authorization->getAuthorizedProjectId()
+                )
+            );
+            $this->write($client, $config, $bucket);
+        } catch (ClientException $e) {
+            throw new UserException($e->getMessage(), 0, $e);
+        }
+    }
+
+    public function infoAction(): array
+    {
+        try {
+            /** @var Config $config */
+            $config = $this->getConfig();
+            $client = new Client(['token' => $config->getToken(), 'url' => $config->getUrl()]);
+            $authorization = new Authorization($client);
+            $bucket = $authorization->getAuthorizedBucket();
+            return [
+                'projectId' => $authorization->getAuthorizedProjectId(),
+                'projectName' => $authorization->getAuthorizedProjectName(),
+                'bucket' => $bucket,
+            ];
         } catch (ClientException $e) {
             throw new UserException($e->getMessage(), 0, $e);
         }
@@ -87,6 +94,13 @@ class Component extends BaseComponent
             $client->writeTableAsync($tableId, $csv, ['incremental' => $config->getMode() === 'update']);
             $this->getLogger()->info(sprintf('Table "%s" processed.', $table['destination']));
         }
+    }
+
+    protected function getSyncActions(): array
+    {
+        return [
+            self::ACTION_INFO => 'infoAction',
+        ];
     }
 
     protected function getConfigClass(): string
