@@ -74,10 +74,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - KBC_TEST_URL: ${{ env.KBC_TEST_URL_AWS }}
-            KBC_TEST_TOKEN: ${{ env.KBC_TEST_TOKEN_AWS }}
-          - KBC_TEST_URL: ${{ env.KBC_TEST_URL_AZURE }}
-            KBC_TEST_TOKEN: ${{ env.KBC_TEST_TOKEN_AZURE }}
+          - KBC_TEST_URL: "${{ env.KBC_TEST_URL_AWS }}"
+            KBC_TEST_TOKEN: "${{ env.KBC_TEST_TOKEN_AWS }}"
+          - KBC_TEST_URL: "${{ env.KBC_TEST_URL_AZURE }}"
+            KBC_TEST_TOKEN: "${{ env.KBC_TEST_TOKEN_AZURE }}"
 
     steps:
       -
