@@ -15,7 +15,7 @@ class Component extends BaseComponent
     private const ACTION_INFO = 'info';
     private const ACTION_RUN = 'run';
 
-    public function run(): void
+    protected function run(): void
     {
         try {
             /** @var Config $config */
@@ -33,7 +33,7 @@ class Component extends BaseComponent
                 );
                 $this->write($client, $config, $bucket);
             } elseif ($config->getAction() === self::ACTION_INFO) {
-                echo \GuzzleHttp\json_encode([
+                echo json_encode([
                     'projectId' => $authorization->getAuthorizedProjectId(),
                     'projectName' => $authorization->getAuthorizedProjectName(),
                     'bucket' => $bucket,
@@ -79,8 +79,8 @@ class Component extends BaseComponent
                         'Primary key in the destination table "%s" - %s ' .
                         'does not match the primary key in the source table - %s.',
                         $table['destination'],
-                        \GuzzleHttp\json_encode($tableInfo['primaryKey']),
-                        \GuzzleHttp\json_encode($primaryKey)
+                        json_encode($tableInfo['primaryKey']),
+                        json_encode($primaryKey)
                     ));
                 }
             }

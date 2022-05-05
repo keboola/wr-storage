@@ -9,20 +9,11 @@ use Keboola\StorageApi\Client;
 
 class Authorization
 {
-    /**
-     * @var string
-     */
-    private $authorizedBucket;
+    private string $authorizedBucket;
 
-    /**
-     * @var string
-     */
-    private $authorizedProjectName;
+    private string $authorizedProjectName;
 
-    /**
-     * @var int
-     */
-    private $authorizedProjectId;
+    private int $authorizedProjectId;
 
     public function __construct(Client $client)
     {
