@@ -16,10 +16,6 @@ env:
   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   # KBC Settings
-  KBC_TEST_URL_AWS: "https://connection.keboola.com/"
-  KBC_TEST_TOKEN_AWS: ${{ secrets.KBC_TEST_TOKEN_AWS }}
-  KBC_TEST_URL_AZURE: "https://connection.north-europe.azure.keboola.com/"
-  KBC_TEST_TOKEN_AZURE: ${{ secrets.KBC_TEST_TOKEN_AZURE }}
   KBC_TEST_BUCKET: "in.c-test-wr-storage"
 
   # Test KBC project
@@ -74,10 +70,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - KBC_TEST_URL: "${{ env.KBC_TEST_URL_AWS }}"
-            KBC_TEST_TOKEN: "${{ env.KBC_TEST_TOKEN_AWS }}"
-          - KBC_TEST_URL: "${{ env.KBC_TEST_URL_AZURE }}"
-            KBC_TEST_TOKEN: "${{ env.KBC_TEST_TOKEN_AZURE }}"
+          - KBC_TEST_URL: "https://connection.keboola.com/"
+            KBC_TEST_TOKEN: "${{ secrets.KBC_TEST_TOKEN_AWS }}"
+          - KBC_TEST_URL: "https://connection.north-europe.azure.keboola.com/"
+            KBC_TEST_TOKEN: "${{ secrets.KBC_TEST_TOKEN_AZURE }}"
 
     steps:
       -
