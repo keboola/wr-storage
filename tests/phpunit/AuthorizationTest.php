@@ -35,8 +35,6 @@ class AuthorizationTest extends TestCase
 
     /**
      * @dataProvider invalidTokenPermissionsProvider
-     * @param array $permissions
-     * @param string $error
      */
     public function testInvalidToken(array $permissions, string $error): void
     {

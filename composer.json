@@ -4,14 +4,15 @@
     "description": "Storage API Writer",
     "type": "project",
     "require": {
-        "php": "^7.2",
+        "php": "^7.4",
+        "ext-json": "*",
         "keboola/csv": "^1.1",
-        "keboola/php-component": "^5.0",
-        "keboola/storage-api-client": "^10.21",
-        "symfony/config": "^4.4"
+        "keboola/php-component": "^9.0",
+        "keboola/storage-api-client": "^13.0",
+        "symfony/config": "^5.4"
     },
     "require-dev": {
-        "keboola/coding-standard": "^9.0",
+        "keboola/coding-standard": "^13.0",
         "keboola/php-temp": "^1.0",
         "php-parallel-lint/php-parallel-lint": "^1.2",
         "phpstan/phpstan": "^0.12.57",
@@ -48,6 +49,9 @@
     },
     "config": {
         "sort-packages": true,
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
     }
 }

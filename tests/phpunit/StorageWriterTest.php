@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\StorageWriter\Tests;
 
+use Exception;
 use Keboola\Component\UserException;
 use Keboola\Csv\CsvFile;
 use Keboola\StorageApi\Client;
@@ -16,10 +17,7 @@ use Symfony\Component\Filesystem\Filesystem;
 
 class StorageWriterTest extends TestCase
 {
-    /**
-     * @var Client
-     */
-    private $client;
+    private Client $client;
 
     public function setUp(): void
     {
@@ -27,7 +25,7 @@ class StorageWriterTest extends TestCase
         if (empty(getenv('KBC_TEST_TOKEN')) || empty(getenv('KBC_TEST_URL'))
             || empty(getenv('KBC_TEST_BUCKET'))
         ) {
-            throw new \Exception('KBC_TEST_TOKEN, KBC_TEST_URL or KBC_TEST_BUCKET is empty');
+            throw new Exception('KBC_TEST_TOKEN, KBC_TEST_URL or KBC_TEST_BUCKET is empty');
         }
         $this->client = new Client([
             'token' => getenv('KBC_TEST_TOKEN'),
@@ -51,7 +49,7 @@ class StorageWriterTest extends TestCase
         $manifest = [
             'primary_key' => ['id'],
         ];
-        $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
+        $fs->dumpFile($tableName . '.manifest', (string) json_encode($manifest));
         $configFile = [
             'action' => 'run',
             'parameters' => [
@@ -69,11 +67,11 @@ class StorageWriterTest extends TestCase
                 ],
             ],
         ];
-        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        $fs->dumpFile($baseDir . '/config.json', (string) json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
         $logger = new TestLogger();
         $app = new Component($logger);
-        $app->run();
+        $app->execute();
         self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-1'));
         $table = $this->client->getTable(getenv('KBC_TEST_BUCKET') . '.some-table-1');
         self::assertEquals(['id'], $table['primaryKey']);
@@ -96,7 +94,7 @@ class StorageWriterTest extends TestCase
         $manifest = [
             'primary_key' => ['id'],
         ];
-        $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
+        $fs->dumpFile($tableName . '.manifest', (string) json_encode($manifest));
         $configFile = [
             'action' => 'run',
             'parameters' => [
@@ -114,10 +112,10 @@ class StorageWriterTest extends TestCase
                 ],
             ],
         ];
-        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        $fs->dumpFile($baseDir . '/config.json', (string) json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
-        $app->run();
+        $app->execute();
         self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-2'));
     }
 
@@ -133,7 +131,7 @@ class StorageWriterTest extends TestCase
         $manifest = [
             'primary_key' => ['id'],
         ];
-        $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
+        $fs->dumpFile($tableName . '.manifest', (string) json_encode($manifest));
         $configFile = [
             'action' => 'run',
             'parameters' => [
@@ -152,10 +150,10 @@ class StorageWriterTest extends TestCase
                 ],
             ],
         ];
-        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        $fs->dumpFile($baseDir . '/config.json', (string) json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
-        $app->run();
+        $app->execute();
         self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-3'));
     }
 
@@ -185,12 +183,12 @@ class StorageWriterTest extends TestCase
                 ],
             ],
         ];
-        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        $fs->dumpFile($baseDir . '/config.json', (string) json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
         self::expectException(UserException::class);
         self::expectExceptionMessage('Invalid access token');
-        $app->run();
+        $app->execute();
     }
 
     public function testInvalidMode(): void
@@ -208,7 +206,7 @@ class StorageWriterTest extends TestCase
             ],
             'storage' => [],
         ];
-        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        $fs->dumpFile($baseDir . '/config.json', (string) json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
         self::expectException(UserException::class);
         self::expectExceptionMessage(
@@ -226,7 +224,7 @@ class StorageWriterTest extends TestCase
         $csv->writeRow(['id', 'name']);
         $csv->writeRow(['1', 'foo']);
         $csv->writeRow(['4', 'foobar']);
-        $this->client->createTableAsync(getenv('KBC_TEST_BUCKET'), 'some-table-5', $csv);
+        $this->client->createTableAsync((string) getenv('KBC_TEST_BUCKET'), 'some-table-5', $csv);
 
         $fs = new Filesystem();
         $fs->mkdir($baseDir . '/in/tables/');
@@ -235,7 +233,7 @@ class StorageWriterTest extends TestCase
         $manifest = [
             'primary_key' => [],
         ];
-        $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
+        $fs->dumpFile($tableName . '.manifest', (string) json_encode($manifest));
         $configFile = [
             'action' => 'run',
             'parameters' => [
@@ -254,10 +252,10 @@ class StorageWriterTest extends TestCase
                 ],
             ],
         ];
-        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        $fs->dumpFile($baseDir . '/config.json', (string) json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
-        $app->run();
+        $app->execute();
         self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-5'));
         $data = $this->client->getTableDataPreview(getenv('KBC_TEST_BUCKET') . '.some-table-5');
         $data = explode("\n", $data);
@@ -285,7 +283,7 @@ class StorageWriterTest extends TestCase
         $csv->writeRow(['id', 'name']);
         $csv->writeRow(['1', 'foo']);
         $csv->writeRow(['4', 'foobar']);
-        $this->client->createTableAsync(getenv('KBC_TEST_BUCKET'), 'some-table-5', $csv);
+        $this->client->createTableAsync((string) getenv('KBC_TEST_BUCKET'), 'some-table-5', $csv);
 
         $fs = new Filesystem();
         $fs->mkdir($baseDir . '/in/tables/');
@@ -294,7 +292,7 @@ class StorageWriterTest extends TestCase
         $manifest = [
             'primary_key' => [],
         ];
-        $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
+        $fs->dumpFile($tableName . '.manifest', (string) json_encode($manifest));
         $configFile = [
             'action' => 'run',
             'parameters' => [
@@ -313,10 +311,10 @@ class StorageWriterTest extends TestCase
                 ],
             ],
         ];
-        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        $fs->dumpFile($baseDir . '/config.json', (string) json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
-        $app->run();
+        $app->execute();
         self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-5'));
         $data = $this->client->getTableDataPreview(getenv('KBC_TEST_BUCKET') . '.some-table-5');
         $data = explode("\n", $data);
@@ -345,7 +343,7 @@ class StorageWriterTest extends TestCase
         $tableName = $baseDir . '/in/tables/some-table-6';
         $fs->dumpFile($tableName, "\"id\",\"name\"\n\"1\",\"Bar\"\n\"2\",\"Kochba\"\n\"3\",\"Foo\"\n");
         $manifest = [];
-        $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
+        $fs->dumpFile($tableName . '.manifest', (string) json_encode($manifest));
         $configFile = [
             'action' => 'run',
             'parameters' => [
@@ -363,10 +361,10 @@ class StorageWriterTest extends TestCase
                 ],
             ],
         ];
-        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        $fs->dumpFile($baseDir . '/config.json', (string) json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
-        $app->run();
+        $app->execute();
         self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-6'));
         $table = $this->client->getTable(getenv('KBC_TEST_BUCKET') . '.some-table-6');
         self::assertEquals([], $table['primaryKey']);
@@ -388,7 +386,7 @@ class StorageWriterTest extends TestCase
         $manifest = [
             'primary_key' => [],
         ];
-        $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
+        $fs->dumpFile($tableName . '.manifest', (string) json_encode($manifest));
         $configFile = [
             'action' => 'run',
             'parameters' => [
@@ -407,7 +405,7 @@ class StorageWriterTest extends TestCase
                 ],
             ],
         ];
-        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        $fs->dumpFile($baseDir . '/config.json', (string) json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
         self::expectException(UserException::class);
@@ -415,7 +413,7 @@ class StorageWriterTest extends TestCase
             'Primary key in the destination table "some-table-7" - ["name","id"] ' .
             'does not match the primary key in the source table - [].'
         );
-        $app->run();
+        $app->execute();
     }
 
     public function testAlreadyExistsWrongColumns(): void
@@ -434,7 +432,7 @@ class StorageWriterTest extends TestCase
         $manifest = [
             'primary_key' => ['id'],
         ];
-        $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
+        $fs->dumpFile($tableName . '.manifest', (string) json_encode($manifest));
         $configFile = [
             'action' => 'run',
             'parameters' => [
@@ -453,14 +451,14 @@ class StorageWriterTest extends TestCase
                 ],
             ],
         ];
-        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        $fs->dumpFile($baseDir . '/config.json', (string) json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
         self::expectException(UserException::class);
         self::expectExceptionMessage(
             'Some columns are missing in the csv file. Missing columns: boo. Expected columns: id,boo.'
         );
-        $app->run();
+        $app->execute();
     }
 
     public function testAlreadyExistsWrongColumnsModeRecreate(): void
@@ -481,7 +479,7 @@ class StorageWriterTest extends TestCase
         $manifest = [
             'primary_key' => ['name'],
         ];
-        $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
+        $fs->dumpFile($tableName . '.manifest', (string) json_encode($manifest));
         $configFile = [
             'action' => 'run',
             'parameters' => [
@@ -500,10 +498,10 @@ class StorageWriterTest extends TestCase
                 ],
             ],
         ];
-        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        $fs->dumpFile($baseDir . '/config.json', (string) json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
-        $app->run();
+        $app->execute();
         self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-9'));
         $tableInfo = $this->client->getTable(getenv('KBC_TEST_BUCKET') . '.some-table-9');
         self::assertEquals(['id', 'name'], $tableInfo['columns']);
@@ -523,7 +521,7 @@ class StorageWriterTest extends TestCase
         $manifest = [
             'primary_key' => ['name'],
         ];
-        $fs->dumpFile($tableName . '.manifest', \GuzzleHttp\json_encode($manifest));
+        $fs->dumpFile($tableName . '.manifest', (string) json_encode($manifest));
         $configFile = [
             'action' => 'run',
             'parameters' => [
@@ -542,10 +540,10 @@ class StorageWriterTest extends TestCase
                 ],
             ],
         ];
-        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        $fs->dumpFile($baseDir . '/config.json', (string) json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
-        $app->run();
+        $app->execute();
         self::assertTrue($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-10'));
         $tableInfo = $this->client->getTable(getenv('KBC_TEST_BUCKET') . '.some-table-10');
         self::assertEquals(['id', 'name'], $tableInfo['columns']);
@@ -564,16 +562,16 @@ class StorageWriterTest extends TestCase
             ],
             'action' => 'info',
         ];
-        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        $fs->dumpFile($baseDir . '/config.json', (string) json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
         $result = '';
         ob_start(function ($content) use (&$result): void {
             $result .= $content;
         });
-        $app->run();
+        $app->execute();
         ob_end_clean();
-        $data = \GuzzleHttp\json_decode($result, true);
+        $data = json_decode($result, true);
         $tokenInfo = $this->client->verifyToken();
         self::assertArrayHasKey('bucket', $data);
         self::assertArrayHasKey('projectId', $data);
@@ -596,11 +594,11 @@ class StorageWriterTest extends TestCase
             ],
             'action' => 'info',
         ];
-        $fs->dumpFile($baseDir . '/config.json', \GuzzleHttp\json_encode($configFile));
+        $fs->dumpFile($baseDir . '/config.json', (string) json_encode($configFile));
         putenv('KBC_DATADIR=' . $baseDir);
         $app = new Component(new NullLogger());
         self::expectException(UserException::class);
         self::expectExceptionMessage('Invalid access token');
-        $app->run();
+        $app->execute();
     }
 }
