@@ -68,7 +68,8 @@ class Component extends BaseComponent
         $this->getLogger()->info(print_r($config->getTable(), true));
         foreach ($tables as $table) {
             $this->getLogger()->info(sprintf('Processing table "%s".', $table['destination']));
-            $manifest = $this->getManifestManager()->getTableManifest($table['destination']);
+            $manifest = $this->getManifestManager()->getTableManifest($table['destination'] . '.csv');
+            $this->getLogger()->info(print_r($manifest, true));
             $primaryKey = $manifest['primary_key'] ?? [];
             $csv = new CsvFile($this->getDataDir() . '/in/tables/' . $table['destination'] . '.csv');
             $tableId = $bucket . '.' . $table['destination'];
