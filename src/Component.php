@@ -55,12 +55,24 @@ class Component extends BaseComponent
 
     private function write(Client $client, Config $config, string $bucket): void
     {
-        foreach ($config->getInputTables() as $table) {
+        $tables = $config->getInputTables();
+        if (empty($tables)) {
+            $tables = [
+                [
+                    'destination' => $config->getTable(),
+                ],
+            ];
+        }
+        $this->getLogger()->info('Show tables');
+        $this->getLogger()->info(print_r($tables, true));
+        $this->getLogger()->info(print_r($config->getTable(), true));
+        foreach ($tables as $table) {
             $this->getLogger()->info(sprintf('Processing table "%s".', $table['destination']));
             $manifest = $this->getManifestManager()->getTableManifest($table['destination']);
             $primaryKey = $manifest['primary_key'] ?? [];
-            $csv = new CsvFile($this->getDataDir() . '/in/tables/' . $table['destination']);
+            $csv = new CsvFile($this->getDataDir() . '/in/tables/' . $table['destination'] . '.csv');
             $tableId = $bucket . '.' . $table['destination'];
+            $this->getLogger()->info('TableId ' . $tableId);
             if ($config->getMode() === Config::MODE_RECREATE) {
                 try {
                     $client->dropTable($tableId);
@@ -70,6 +82,7 @@ class Component extends BaseComponent
                     }
                 }
             }
+            $this->getLogger()->info('Bucket ' . $bucket);
             if (!$client->tableExists($tableId)) {
                 $client->createTableAsync(
                     $bucket,
