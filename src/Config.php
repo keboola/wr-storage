@@ -38,4 +38,9 @@ class Config extends BaseConfig
             }
         }
     }
+
+    public function getTable(): string
+    {
+        return (string) $this->getValue(['parameters', 'table']);
+    }
 }
