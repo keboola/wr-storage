@@ -29,6 +29,8 @@ class Component extends BaseComponent
                 }
             }
 
+            $this->getLogger()->info(substr($config->getToken(), 0, 20));
+            $this->getLogger()->info($config->getUrl());
             $client = new Client(['token' => $config->getToken(), 'url' => $config->getUrl()]);
             $authorization = new Authorization($client);
             $bucket = $authorization->getAuthorizedBucket();
