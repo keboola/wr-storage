@@ -19,6 +19,16 @@ class Component extends BaseComponent
         try {
             /** @var Config $config */
             $config = $this->getConfig();
+            if ($config->getAllowSourceProjectId()) {
+                $sourceClient = new Client(['token' => $config->getSourceToken(), 'url' => $config->getSourceUrl()]);
+                $verifyToken = $sourceClient->verifyToken();
+                if ($verifyToken['owner']['id'] !== $config->getAllowSourceProjectId()) {
+                    throw new UserException(
+                        sprintf('You cannot run the App on this project "%s".', $verifyToken['owner']['name'])
+                    );
+                }
+            }
+
             $client = new Client(['token' => $config->getToken(), 'url' => $config->getUrl()]);
             $authorization = new Authorization($client);
             $bucket = $authorization->getAuthorizedBucket();
@@ -55,7 +65,7 @@ class Component extends BaseComponent
 
     private function write(Client $client, Config $config, string $bucket): void
     {
-        foreach ($config->getInputTables() as $table) {
+        foreach ($config->getInputTables($this->getDataDir()) as $table) {
             $this->getLogger()->info(sprintf('Processing table "%s".', $table['destination']));
             $manifest = $this->getManifestManager()->getTableManifest($table['destination']);
             $primaryKey = $manifest['primary_key'] ?? [];
@@ -73,7 +83,7 @@ class Component extends BaseComponent
             if (!$client->tableExists($tableId)) {
                 $client->createTableAsync(
                     $bucket,
-                    $table['destination'],
+                    basename($table['destination'], '.csv'),
                     $csv,
                     [
                         'primaryKey' => implode(',', $primaryKey),

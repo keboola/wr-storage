@@ -8,6 +8,7 @@ env:
   # Developer portal login
   KBC_DEVELOPERPORTAL_VENDOR: "keboola"
   KBC_DEVELOPERPORTAL_APP: "keboola.wr-storage"
+  KBC_DEVELOPERPORTAL_TELEMETRY_APP: "keboola.wr-storage"
   KBC_DEVELOPERPORTAL_USERNAME: "keboola+wr_storage_github_actions"
   KBC_DEVELOPERPORTAL_PASSWORD: ${{ secrets.KBC_DEVELOPERPORTAL_PASSWORD }}
 
@@ -127,6 +128,15 @@ jobs:
         with:
           vendor: ${{ env.KBC_DEVELOPERPORTAL_VENDOR }}
           app_id: ${{ env.KBC_DEVELOPERPORTAL_APP }}
+          username: ${{ env.KBC_DEVELOPERPORTAL_USERNAME }}
+          password: ${{ env.KBC_DEVELOPERPORTAL_PASSWORD }}
+          tag: ${{ needs.build.outputs.app_image_tag }}
+      -
+        name: Set tag in the Deloper Portal (Telemetry writer APP)
+        uses: keboola/action-set-tag-developer-portal@master
+        with:
+          vendor: ${{ env.KBC_DEVELOPERPORTAL_VENDOR }}
+          app_id: ${{ env.KBC_DEVELOPERPORTAL_TELEMETRY_APP }}
           username: ${{ env.KBC_DEVELOPERPORTAL_USERNAME }}
           password: ${{ env.KBC_DEVELOPERPORTAL_PASSWORD }}
           tag: ${{ needs.build.outputs.app_image_tag }}

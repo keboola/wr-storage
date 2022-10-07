@@ -18,8 +18,8 @@ class ConfigDefinition extends BaseConfigDefinition
         $parametersNode
             ->children()
                 ->scalarNode('bucket')->end() // this is only for compatibility with legacy configs and is ignored
-                ->scalarNode('#token')->isRequired()->cannotBeEmpty()->end()
-                ->scalarNode('url')->isRequired()->cannotBeEmpty()->end()
+                ->scalarNode('#token')->cannotBeEmpty()->end()
+                ->scalarNode('url')->cannotBeEmpty()->end()
                 ->booleanNode('incremental')->end()
                 ->scalarNode('mode')
                     ->defaultValue(Config::MODE_REPLACE)
