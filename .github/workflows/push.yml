@@ -8,6 +8,7 @@ env:
   # Developer portal login
   KBC_DEVELOPERPORTAL_VENDOR: "keboola"
   KBC_DEVELOPERPORTAL_APP: "keboola.wr-storage"
+  KBC_DEVELOPERPORTAL_TELEMETRY_APP: "keboola.wr-storage"
   KBC_DEVELOPERPORTAL_USERNAME: "keboola+wr_storage_github_actions"
   KBC_DEVELOPERPORTAL_PASSWORD: ${{ secrets.KBC_DEVELOPERPORTAL_PASSWORD }}
 
@@ -16,6 +17,7 @@ env:
   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   # KBC Settings
+  KBC_PROJECTID: 12345
   KBC_TEST_BUCKET: "in.c-test-wr-storage"
 
   # Test KBC project
@@ -96,6 +98,7 @@ jobs:
           docker run \
           -e KBC_TEST_TOKEN=${{ secrets[matrix.KBC_TEST_TOKEN] }} \
           -e KBC_TEST_URL=${{ matrix.KBC_TEST_URL }} \
+          -e KBC_PROJECTID=${{ env.KBC_PROJECTID }} \
           -e KBC_TEST_BUCKET \
           $APP_IMAGE composer ci
 
@@ -127,6 +130,15 @@ jobs:
         with:
           vendor: ${{ env.KBC_DEVELOPERPORTAL_VENDOR }}
           app_id: ${{ env.KBC_DEVELOPERPORTAL_APP }}
+          username: ${{ env.KBC_DEVELOPERPORTAL_USERNAME }}
+          password: ${{ env.KBC_DEVELOPERPORTAL_PASSWORD }}
+          tag: ${{ needs.build.outputs.app_image_tag }}
+      -
+        name: Set tag in the Deloper Portal (Telemetry writer APP)
+        uses: keboola/action-set-tag-developer-portal@master
+        with:
+          vendor: ${{ env.KBC_DEVELOPERPORTAL_VENDOR }}
+          app_id: ${{ env.KBC_DEVELOPERPORTAL_TELEMETRY_APP }}
           username: ${{ env.KBC_DEVELOPERPORTAL_USERNAME }}
           password: ${{ env.KBC_DEVELOPERPORTAL_PASSWORD }}
           tag: ${{ needs.build.outputs.app_image_tag }}

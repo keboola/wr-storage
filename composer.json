@@ -8,14 +8,16 @@
         "ext-json": "*",
         "keboola/csv": "^1.1",
         "keboola/php-component": "^9.0",
-        "keboola/storage-api-client": "^13.0",
-        "symfony/config": "^5.4"
+        "keboola/storage-api-client": "^14.2",
+        "symfony/config": "^5.4",
+        "symfony/finder": "^5.4"
     },
     "require-dev": {
         "keboola/coding-standard": "^13.0",
-        "keboola/php-temp": "^1.0",
+        "keboola/datadir-tests": "^5.5",
+        "keboola/php-temp": "^2.0",
         "php-parallel-lint/php-parallel-lint": "^1.2",
-        "phpstan/phpstan": "^0.12.57",
+        "phpstan/phpstan": "^1.8",
         "phpunit/phpunit": "^9.4"
     },
     "autoload": {
@@ -25,13 +27,16 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Keboola\\StorageWriter\\Tests\\": "tests/phpunit/"
+            "Keboola\\StorageWriter\\Tests\\": "tests/phpunit/",
+            "Keboola\\StorageWriter\\FunctionalTests\\": "tests/functional/"
         }
     },
     "scripts": {
         "tests-phpunit": "phpunit",
+        "tests-datadir": "phpunit tests/functional",
         "tests": [
-            "@tests-phpunit"
+            "@tests-phpunit",
+            "@tests-datadir"
         ],
         "phpstan": "phpstan analyse ./src ./tests --level=max --no-progress -c phpstan.neon",
         "phpcs": "phpcs -n --ignore=vendor --extensions=php .",
