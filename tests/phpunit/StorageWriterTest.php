@@ -40,7 +40,6 @@ class StorageWriterTest extends TestCase
     public function testCreateTable(): void
     {
         $temp = new Temp('wr-storage');
-        $temp->initRunFolder();
         $baseDir = $temp->getTmpFolder();
         $fs = new Filesystem();
         $fs->mkdir($baseDir . '/in/tables/');
@@ -81,7 +80,6 @@ class StorageWriterTest extends TestCase
     public function testAlreadyExists(): void
     {
         $temp = new Temp('wr-storage');
-        $temp->initRunFolder();
         $fs = new Filesystem();
         $fs->dumpFile($temp->getTmpFolder() . '/tmp.csv', "\"id\",\"name\"\n\"1\",\"a\"\n\"2\",\"b\"\n\"3\",\"c\"\n");
         $csv = new CsvFile($temp->getTmpFolder() . '/tmp.csv');
@@ -122,7 +120,6 @@ class StorageWriterTest extends TestCase
     public function testWithBucketLegacy(): void
     {
         $temp = new Temp('wr-storage');
-        $temp->initRunFolder();
         $baseDir = $temp->getTmpFolder();
         $fs = new Filesystem();
         $fs->mkdir($baseDir . '/in/tables/');
@@ -160,7 +157,6 @@ class StorageWriterTest extends TestCase
     public function testInvalidToken(): void
     {
         $temp = new Temp('wr-storage');
-        $temp->initRunFolder();
         $baseDir = $temp->getTmpFolder();
         $fs = new Filesystem();
         $fs->mkdir($baseDir . '/in/tables/');
@@ -194,7 +190,6 @@ class StorageWriterTest extends TestCase
     public function testInvalidMode(): void
     {
         $temp = new Temp('wr-storage');
-        $temp->initRunFolder();
         $baseDir = $temp->getTmpFolder();
         $fs = new Filesystem();
         $configFile = [
@@ -218,7 +213,6 @@ class StorageWriterTest extends TestCase
     public function testIncremental(): void
     {
         $temp = new Temp('wr-storage');
-        $temp->initRunFolder();
         $baseDir = $temp->getTmpFolder();
         $csv = new CsvFile($baseDir . DIRECTORY_SEPARATOR . uniqid('csv'));
         $csv->writeRow(['id', 'name']);
@@ -277,7 +271,6 @@ class StorageWriterTest extends TestCase
     public function testIncrementalModeUpdate(): void
     {
         $temp = new Temp('wr-storage');
-        $temp->initRunFolder();
         $baseDir = $temp->getTmpFolder();
         $csv = new CsvFile($baseDir . DIRECTORY_SEPARATOR . uniqid('csv'));
         $csv->writeRow(['id', 'name']);
@@ -336,7 +329,6 @@ class StorageWriterTest extends TestCase
     public function testEmptyManifest(): void
     {
         $temp = new Temp('wr-storage');
-        $temp->initRunFolder();
         $baseDir = $temp->getTmpFolder();
         $fs = new Filesystem();
         $fs->mkdir($baseDir . '/in/tables/');
@@ -373,7 +365,6 @@ class StorageWriterTest extends TestCase
     public function testAlreadyExistsWrongPk(): void
     {
         $temp = new Temp('wr-storage');
-        $temp->initRunFolder();
         $fs = new Filesystem();
         $fs->dumpFile($temp->getTmpFolder() . '/tmp.csv', "\"id\",\"name\"\n\"1\",\"a\"\n\"2\",\"b\"\n\"3\",\"c\"\n");
         $csv = new CsvFile($temp->getTmpFolder() . '/tmp.csv');
@@ -419,7 +410,6 @@ class StorageWriterTest extends TestCase
     public function testAlreadyExistsWrongColumns(): void
     {
         $temp = new Temp('wr-storage');
-        $temp->initRunFolder();
         $fs = new Filesystem();
         $fs->dumpFile($temp->getTmpFolder() . '/tmp.csv', "\"id\",\"boo\"\n\"1\",\"a\"\n\"2\",\"b\"\n");
         $csv = new CsvFile($temp->getTmpFolder() . '/tmp.csv');
@@ -464,7 +454,6 @@ class StorageWriterTest extends TestCase
     public function testAlreadyExistsWrongColumnsModeRecreate(): void
     {
         $temp = new Temp('wr-storage');
-        $temp->initRunFolder();
         $fs = new Filesystem();
         $fs->dumpFile($temp->getTmpFolder() . '/tmp.csv', "\"id\",\"boo\"\n\"1\",\"a\"\n\"2\",\"b\"\n");
         $csv = new CsvFile($temp->getTmpFolder() . '/tmp.csv');
@@ -510,7 +499,6 @@ class StorageWriterTest extends TestCase
     public function testNotExistsModeRecreate(): void
     {
         $temp = new Temp('wr-storage');
-        $temp->initRunFolder();
         $fs = new Filesystem();
         self::assertFalse($this->client->tableExists(getenv('KBC_TEST_BUCKET') . '.some-table-10'));
 
@@ -552,7 +540,6 @@ class StorageWriterTest extends TestCase
     public function testAction(): void
     {
         $temp = new Temp('wr-storage');
-        $temp->initRunFolder();
         $baseDir = $temp->getTmpFolder();
         $fs = new Filesystem();
         $configFile = [
@@ -571,7 +558,7 @@ class StorageWriterTest extends TestCase
         });
         $app->execute();
         ob_end_clean();
-        $data = json_decode($result, true);
+        $data = (array) json_decode($result, true);
         $tokenInfo = $this->client->verifyToken();
         self::assertArrayHasKey('bucket', $data);
         self::assertArrayHasKey('projectId', $data);
@@ -584,7 +571,6 @@ class StorageWriterTest extends TestCase
     public function testActionInvalidToken(): void
     {
         $temp = new Temp('wr-storage');
-        $temp->initRunFolder();
         $baseDir = $temp->getTmpFolder();
         $fs = new Filesystem();
         $configFile = [
