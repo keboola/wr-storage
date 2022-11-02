@@ -142,3 +142,4 @@ jobs:
           username: ${{ env.KBC_DEVELOPERPORTAL_USERNAME }}
           password: ${{ env.KBC_DEVELOPERPORTAL_PASSWORD }}
           tag: ${{ needs.build.outputs.app_image_tag }}
+          repository_app_id: ${{ env.KBC_DEVELOPERPORTAL_APP }}
