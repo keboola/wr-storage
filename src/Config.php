@@ -18,7 +18,7 @@ class Config extends BaseConfig
         return (string) getenv('KBC_PROJECTID');
     }
 
-    public function getAllowSourceProjectId(): ?int
+    public function getAllowSourceProjectId(): ?string
     {
         return $this->getImageParameters()['sourceProjectId'] ?? null;
     }
