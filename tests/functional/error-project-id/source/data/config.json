@@ -1,0 +1,9 @@
+{
+  "parameters": {
+    "url": "https://conncetion.keboola.com/",
+    "#token": "secretToken"
+  },
+  "image_parameters": {
+    "sourceProjectId": 98765
+  }
+}
