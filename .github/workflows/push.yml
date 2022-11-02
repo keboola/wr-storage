@@ -8,7 +8,7 @@ env:
   # Developer portal login
   KBC_DEVELOPERPORTAL_VENDOR: "keboola"
   KBC_DEVELOPERPORTAL_APP: "keboola.wr-storage"
-  KBC_DEVELOPERPORTAL_TELEMETRY_APP: "keboola.wr-storage"
+  KBC_DEVELOPERPORTAL_TELEMETRY_APP: "keboola.wr-telemetry-data"
   KBC_DEVELOPERPORTAL_USERNAME: "keboola+wr_storage_github_actions"
   KBC_DEVELOPERPORTAL_PASSWORD: ${{ secrets.KBC_DEVELOPERPORTAL_PASSWORD }}
 
