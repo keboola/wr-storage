@@ -4,6 +4,6 @@
     "#token": "secretToken"
   },
   "image_parameters": {
-    "sourceProjectId": 98765
+    "sourceProjectId": "98765"
   }
 }
