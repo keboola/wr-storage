@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Keboola\StorageWriter;
 
+use InvalidArgumentException;
 use Keboola\Component\Config\BaseConfig;
+use Keboola\Component\UserException;
 use Symfony\Component\Finder\Finder;
 
 class Config extends BaseConfig
@@ -23,9 +25,16 @@ class Config extends BaseConfig
         return $this->getImageParameters()['sourceProjectId'] ?? null;
     }
 
+    /**
+     * @throws \Keboola\Component\UserException
+     */
     public function getToken(): string
     {
-        return $this->getImageParameters()['#token'] ?? $this->getValue(['parameters', '#token']);
+        try {
+            return $this->getImageParameters()['#token'] ?? $this->getValue(['parameters', '#token']);
+        } catch (InvalidArgumentException $e) {
+            throw new UserException('Missing "parameters.#token" in configuration.');
+        }
     }
 
     public function getUrl(): string
