@@ -1,6 +1,6 @@
 # Storage Writer
 
-Writes tables from input mapping to the target bucket in the destination project. You need to provide a Storage
+Write tables from input mapping to the target bucket in the destination project. You need to provide a Storage
 token from the destination project which has `write` access to the target bucket **only**.
 
 # Usage
@@ -43,8 +43,8 @@ Note: Legacy configurations may have the `incremental` parameter. If it is true,
 Clone this repository and init the workspace with following command:
 
 ```
-git clone https://github.com/keboola/my-component
-cd my-component
+git clone https://github.com/keboola/wr-storage
+cd wr-storage
 docker-compose build
 docker-compose run --rm dev composer install --no-scripts
 ```
