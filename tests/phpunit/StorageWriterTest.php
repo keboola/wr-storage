@@ -587,4 +587,23 @@ class StorageWriterTest extends TestCase
         self::expectExceptionMessage('Invalid access token');
         $app->execute();
     }
+
+    public function testActionMissingToken(): void
+    {
+        $temp = new Temp('wr-storage');
+        $baseDir = $temp->getTmpFolder();
+        $fs = new Filesystem();
+        $configFile = [
+            'parameters' => [
+                'url' => getenv('KBC_TEST_URL'),
+            ],
+            'action' => 'info',
+        ];
+        $fs->dumpFile($baseDir . '/config.json', (string) json_encode($configFile));
+        putenv('KBC_DATADIR=' . $baseDir);
+        $app = new Component(new NullLogger());
+        self::expectException(UserException::class);
+        self::expectExceptionMessage('Missing "parameters.#token" in configuration.');
+        $app->execute();
+    }
 }
