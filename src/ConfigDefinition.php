@@ -27,7 +27,7 @@ class ConfigDefinition extends BaseConfigDefinition
                         ->ifNotInArray([Config::MODE_RECREATE, Config::MODE_REPLACE, Config::MODE_UPDATE])
                         ->thenInvalid(sprintf(
                             'Mode must be one of "%s"',
-                            implode(', ', [Config::MODE_RECREATE, Config::MODE_REPLACE, Config::MODE_UPDATE])
+                            implode(', ', [Config::MODE_RECREATE, Config::MODE_REPLACE, Config::MODE_UPDATE]),
                         ))
                     ->end()
                 ->end()
