@@ -30,8 +30,8 @@ class Component extends BaseComponent
                 sprintf(
                     'Authorized for project "%s" (%s)',
                     $authorization->getAuthorizedProjectName(),
-                    $authorization->getAuthorizedProjectId()
-                )
+                    $authorization->getAuthorizedProjectId(),
+                ),
             );
             $this->write($client, $config, $bucket);
         } catch (ClientException $e) {
@@ -61,7 +61,7 @@ class Component extends BaseComponent
     {
         foreach ($config->getInputTables($this->getDataDir()) as $table) {
             $this->getLogger()->info(sprintf('Processing table "%s".', $table['destination']));
-            $manifest = (array) $this->getManifestManager()->getTableManifest($table['destination']);
+            $manifest = $this->getManifestManager()->getTableManifest($table['destination'])->toArray();
             $primaryKey = $manifest['primary_key'] ?? [];
             $csv = new CsvFile($this->getDataDir() . '/in/tables/' . $table['destination']);
             $tableId = $bucket . '.' . $table['destination'];
@@ -81,7 +81,7 @@ class Component extends BaseComponent
                     $csv,
                     [
                         'primaryKey' => implode(',', (array) $primaryKey),
-                    ]
+                    ],
                 );
             } else {
                 $tableInfo = $client->getTable($tableId);
@@ -91,7 +91,7 @@ class Component extends BaseComponent
                         'does not match the primary key in the source table - %s.',
                         $table['destination'],
                         json_encode($tableInfo['primaryKey']),
-                        json_encode($primaryKey)
+                        json_encode($primaryKey),
                     ));
                 }
             }

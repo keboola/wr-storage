@@ -37,7 +37,7 @@ class Authorization
     {
         if ($tokenInfo['bucketPermissions'][$bucket] !== 'write') {
             throw new UserException(
-                sprintf('The token must have only write permissions to the bucket "%s".', $bucket)
+                sprintf('The token must have only write permissions to the bucket "%s".', $bucket),
             );
         }
     }

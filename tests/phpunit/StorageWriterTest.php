@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\StorageWriter\Tests;
 
+use ColinODell\PsrTestLogger\TestLogger;
 use Exception;
 use Keboola\Component\UserException;
 use Keboola\Csv\CsvFile;
@@ -12,7 +13,6 @@ use Keboola\StorageWriter\Component;
 use Keboola\Temp\Temp;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
-use Psr\Log\Test\TestLogger;
 use Symfony\Component\Filesystem\Filesystem;
 
 class StorageWriterTest extends TestCase
@@ -205,7 +205,7 @@ class StorageWriterTest extends TestCase
         putenv('KBC_DATADIR=' . $baseDir);
         self::expectException(UserException::class);
         self::expectExceptionMessage(
-            'Invalid configuration for path "root.parameters.mode": Mode must be one of "recreate, replace, update"'
+            'Invalid configuration for path "root.parameters.mode": Mode must be one of "recreate, replace, update"',
         );
         new Component(new NullLogger());
     }
@@ -264,7 +264,7 @@ class StorageWriterTest extends TestCase
                 '"4","foobar"',
                 '"id","name"',
             ],
-            $data
+            $data,
         );
     }
 
@@ -322,7 +322,7 @@ class StorageWriterTest extends TestCase
                 '"4","foobar"',
                 '"id","name"',
             ],
-            $data
+            $data,
         );
     }
 
@@ -402,7 +402,7 @@ class StorageWriterTest extends TestCase
         self::expectException(UserException::class);
         self::expectExceptionMessage(
             'Primary key in the destination table "some-table-7" - ["name","id"] ' .
-            'does not match the primary key in the source table - [].'
+            'does not match the primary key in the source table - [].',
         );
         $app->execute();
     }
@@ -446,7 +446,7 @@ class StorageWriterTest extends TestCase
         $app = new Component(new NullLogger());
         self::expectException(UserException::class);
         self::expectExceptionMessage(
-            'Some columns are missing in the csv file. Missing columns: boo. Expected columns: id,boo.'
+            'Some columns are missing in the csv file. Missing columns: boo. Expected columns: id,boo.',
         );
         $app->execute();
     }
